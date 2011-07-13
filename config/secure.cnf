@@ -1,0 +1,6 @@
+[secure]
+path = secure
+exception[] = create-account
+exception[] = log-in
+exception[] = log-out
+exception[] = forgot-password

@@ -1,0 +1,30 @@
+CREATE TABLE repositories (
+    id integer primary key autoincrement,
+    user_id integer,
+    name varchar(255),
+    private integer,
+    cloned integer,
+    auto_update integer
+);
+
+CREATE TABLE sessions (
+    user_id integer primary key autoincrement,
+    session_id varchar(255),
+    session_date text
+);
+
+CREATE TABLE tokens (
+    user_id integer primary key,
+    token varchar(255),
+    create_date text
+);
+
+CREATE TABLE users (
+    id integer primary key autoincrement,
+    first_name varchar(255),
+    last_name varchar(255),
+    email varchar(255),
+    username varchar(255),
+    password varchar(255),
+    salt varchar(255)
+);
