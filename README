@@ -1,0 +1,33 @@
+Flint is released under the AGPLv3 license, please see COPYRIGHT and
+COPYING for more information.
+
+Flint was developed for Apache, PHP5 and SQLite. It also uses the
+PDO_SQLITE driver for PHP5. All you should have to do to get it up and
+running is to use the db/schema.sql file to create the db/flint.db
+database and setup a virtual host under Apache.
+
+Something like this should work:
+
+<VirtualHost *:80>
+    ServerName flint.tld 
+    ServerAlias www.flint.tld
+    ServerAdmin you@flint.tld
+    DocumentRoot /var/www/htdocs/flint/public
+    ErrorLog /var/www/logs/flint.tld/error_log
+    CustomLog /var/www/logs/flint.tld/access_log combined
+
+    ScriptAliasMatch ^/user/(.*)/repository/(.*) \
+        /var/www/htdocs/flint/repos/$1/repository/$2
+
+    <Directory "/var/www/htdocs/flint/repos">
+        AllowOverride None
+        Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+        Order allow,deny
+        Allow from all
+    </Directory>
+</VirtualHost>
+
+You will also want to make sure your setup works with .htaccess files.
+
+If you find any bugs or security issues, please submit a ticket at
+http://chiselapp.com/user/james/repository/flint/reportlist
