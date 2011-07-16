@@ -8,7 +8,7 @@ CREATE TABLE repositories (
 );
 
 CREATE TABLE sessions (
-    user_id integer primary key autoincrement,
+    user_id integer primary key,
     session_id varchar(255),
     session_date text
 );
