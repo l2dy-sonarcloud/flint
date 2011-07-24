@@ -31,7 +31,7 @@
 </div>
 <div id="side">
     <h2>Create an account <strong>now</strong>!</h2>
-    <form action="https://flint.tld/secure/create-account/" method="post">
+    <form action="https://<?= $_SERVER['SERVER_NAME'] ?>/secure/create-account/" method="post">
         <ol>
             <li><? $this->form_text('first-name') ?></li>
             <li><? $this->form_text('last-name') ?></li>

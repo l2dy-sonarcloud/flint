@@ -178,16 +178,16 @@ class Nano_Session
 
             Nano_Db::execute($sql, $bind);
 
-            $headers = "From: Flint <no-reply@flint.tld>\r\n" .
-                       "Reply-To: Flint <no-reply@flint.tld>";
+            $headers = "From: Flint <no-reply@{$_SERVER['SERVER_NAME']}>\r\n" .
+                       "Reply-To: Flint <no-reply@{$_SERVER['SERVER_NAME']}>";
 
-            $message = "{$result['first_name']},\n\nUse the link below to reset your flint.tld password. " .
+            $message = "{$result['first_name']},\n\nUse the link below to reset your {$_SERVER['SERVER_NAME']} password. " .
                        "Your one time token expires in 24 hours.\n\n" .
-                       "https://flint.tld/secure/log-in/token/{$bind['token']}\n\n" .
+                       "https://{$_SERVER['SERVER_NAME']}/secure/log-in/token/{$bind['token']}\n\n" .
                        "The Flint Team";
 
             mail($result['email'], 'Flint.tld Forgot Password', $message, $headers,
-                 '-fno-reply@flint.tld');
+                 '-fno-reply@' . $_SERVER['SERVER_NAME']);
 
             return true;
         }
