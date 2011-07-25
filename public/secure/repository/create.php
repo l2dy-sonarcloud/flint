@@ -91,8 +91,9 @@ if (isset($_GET['type']) && $_GET['type'] == 'clone' && $_POST) {
 if (isset($_GET['type']) && $_GET['type'] == 'upload' && $_POST) {
     $validation = new Nano_Validation();
 
-    $rules                    = array();
-    $rules['repository-name'] = 'required,filename';
+    $rules                        = array();
+    $rules['repository-name']     = 'required,filename';
+    $rules['repository-password'] = 'required';
 
     if ($validation->validate($_POST, $rules)) {
         if (!isset($_FILES['upload']) || $_FILES['upload']['error'] != 0) {
@@ -105,7 +106,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'upload' && $_POST) {
             if (count($fossil->getRepos()) <= 10) {
                 $private = isset($_POST['private']) ? '1' : '0';
 
-                if ($fossil->uploadRepo($_POST['repository-name'], $private, $_FILES['upload'])) {
+                if ($fossil->uploadRepo($_POST['repository-name'], $_POST['repository-password'], $private, $_FILES['upload'])) {
                     $view->user     = $user;
                     $view->name     = $_POST['repository-name'];
                     $view->private  = $private;

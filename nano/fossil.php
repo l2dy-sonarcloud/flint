@@ -45,17 +45,18 @@ class Nano_Fossil
                         $code     = array_pop($result);
                         $password = sha1("{$code['value']}/{$this->user['username']}/{$password}");
 
-                        $sql  = "UPDATE user SET pw = :password WHERE uid = 1";
-                        $bind = array('password' => $password);
+                        $sql  = "UPDATE user SET pw = :password WHERE login = :user";
+                        $bind = array('password' => $password, 'user' => $this->user['username']);
                         Nano_Db::execute($sql, $bind);
 
                         $return = 'sha1';
                     }
                 }
                 else {
-                    $sql = "SELECT pw FROM user WHERE uid = 1";
+                    $sql  = "SELECT pw FROM user WHERE login = :user";
+                    $bind = array('user' => $this->user['username']);
 
-                    if ($result = Nano_Db::query($sql)) {
+                    if ($result = Nano_Db::query($sql, $bind)) {
                         $password = array_pop($result);
                         $return   = $password['pw'];
                     }
@@ -72,7 +73,7 @@ class Nano_Fossil
         return false;
     }
 
-    public function cloneRepo($repo, $password, $url, $private = 0, $update = 0)
+    public function cloneRepo($repo, $password = null, $url, $private = 0, $update = 0)
     {
         if (!file_exists($this->path)) {
             mkdir($this->path);
@@ -107,17 +108,18 @@ class Nano_Fossil
                         $code     = array_pop($result);
                         $password = sha1("{$code['value']}/{$this->user['username']}/{$password}");
 
-                        $sql  = "UPDATE user SET pw = :password WHERE uid = 1";
-                        $bind = array('password' => $password);
+                        $sql  = "UPDATE user SET pw = :password WHERE login = :user";
+                        $bind = array('password' => $password, 'user' => $this->user['username']);
                         Nano_Db::execute($sql, $bind);
 
                         $return = 'sha1';
                     }
                 }
                 else {
-                    $sql = "SELECT pw FROM user WHERE uid = 1";
+                    $sql  = "SELECT pw FROM user WHERE login = :user";
+                    $bind = array('user' => $this->user['username']);
 
-                    if ($result = Nano_Db::query($sql)) {
+                    if ($result = Nano_Db::query($sql, $bind)) {
                         $password = array_pop($result);
                         $return   = $password['pw'];
                     }
@@ -134,7 +136,7 @@ class Nano_Fossil
         return false;
     }
 
-    public function uploadRepo($repo, $private = 0, array $file)
+    public function uploadRepo($repo, $password, $private = 0, array $file)
     {
         if (!file_exists($this->path)) {
             mkdir($this->path);
@@ -163,6 +165,39 @@ class Nano_Fossil
                 return false;
             }
 
+            exec("/usr/local/bin/fossil user new {$this->user['username']} 'Chisel User' {$password} -R {$this->path}{$repo}.fossil",
+                $output, $return);
+
+            if ($return == 0) {
+                exec("/usr/local/bin/fossil user capabilities {$this->user['username']} s -R {$this->path}{$repo}.fossil",
+                    $output, $return);
+
+                if ($return !== 0) {
+                    unlink("{$this->path}{$repo}.fossil");
+                    return false;
+                }
+            }
+            else if ($return == 1) {
+                Nano_Db::setDb("sqlite:{$this->path}{$repo}.fossil");
+                    
+                $sql = "SELECT value FROM config WHERE name = 'project-code'";
+                    
+                if ($result = Nano_Db::query($sql)) {
+                    $code     = array_pop($result);
+                    $password = sha1("{$code['value']}/{$this->user['username']}/{$password}");
+                        
+                    $sql  = "UPDATE user SET cap = 's', pw = :password WHERE login = :user";
+                    $bind = array('password' => $password, 'user' => $this->user['username']);
+                    Nano_Db::execute($sql, $bind);
+                }
+
+                Nano_Db::unsetDb();
+            }
+            else {
+                unlink("{$this->path}{$repo}.fossil");
+                return false;
+            }
+
             $sql = "INSERT INTO repositories
                            (user_id, name, private, cloned, auto_update)
                     VALUES (:id, :name, :private, 0, 0)";
@@ -171,11 +206,12 @@ class Nano_Fossil
 
             if (Nano_Db::execute($sql, $bind)) {
                 Nano_Db::setDb("sqlite:{$this->path}{$repo}.fossil");
+
                 $sql = "UPDATE config SET value = 1 WHERE name = 'localauth'";
                 Nano_Db::execute($sql);
                 Nano_Db::unsetDb();
 
-                return true;
+                return 'sha1';
             }
         }
 
@@ -288,8 +324,8 @@ class Nano_Fossil
                         $code     = array_pop($result);
                         $password = sha1("{$code['value']}/{$this->user['username']}/{$password}");
 
-                        $sql  = "UPDATE user SET pw = :password WHERE uid = 1";
-                        $bind = array('password' => $password);
+                        $sql  = "UPDATE user SET pw = :password WHERE login = :user";
+                        $bind = array('password' => $password, 'user' => $this->user['username']);
                         Nano_Db::execute($sql, $bind);
                         Nano_Db::unsetDb();
                     }
