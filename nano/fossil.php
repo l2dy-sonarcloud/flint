@@ -165,7 +165,7 @@ class Nano_Fossil
                 return false;
             }
 
-            exec("/usr/local/bin/fossil user new {$this->user['username']} 'Chisel User' {$password} -R {$this->path}{$repo}.fossil",
+            exec("/usr/local/bin/fossil user new {$this->user['username']} 'Flint User' {$password} -R {$this->path}{$repo}.fossil",
                 $output, $return);
 
             if ($return == 0) {
