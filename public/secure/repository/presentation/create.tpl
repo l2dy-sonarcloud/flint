@@ -63,7 +63,7 @@
 </form>
 <? endif ?>
 <? if (isset($_GET['type']) && $_GET['type'] == 'upload'): ?>
-        <p>Please fill out the form below to upload an existing repository. A new super-user will be created that matches your flint username and the password you provide below. Limit 8M in size. If your repository is larger than this, create a new empty project and push to it instead.</p>
+<p>Please fill out the form below to upload an existing repository. A new super-user will be created that matches your flint username and the password you provide below. Limit 8M in size. If your repository is larger than this, create a new empty project and push to it instead.</p>
 
 <? if (isset($this->error)): ?>
 <p class="error">Something failed during the creation process please try again.</p>
@@ -76,7 +76,7 @@
 <form action="/secure/repository/create/type/upload/" method="post" enctype="multipart/form-data">
     <ol>
         <li><? $this->form_text('repository-name') ?></li>
-        <li><? $this->form_password('repository-password', 'Repository password') ?></li>
+        <li><? $this->form_password('repository-password') ?></li>
         <li><? $this->form_file('upload') ?></li>
         <li>
             <? $this->form_checkbox('private', null, 'Make this repository private? <em>(Prevents repositories from being listed as public only, lock down within fossil still required.)</em>') ?>
