@@ -9,7 +9,24 @@ $sql = "SELECT *
          WHERE private = 0";
 
 if ($result = Nano_Db::query($sql)) {
-    $view->repositories = $result;
+    $repositories = array(
+        0 => array(),
+        1 => array(),
+        2 => array(),
+    );
+
+    $i = 0;
+
+    foreach ($result as $repo) {
+        if ($i == 3) {
+            $i = 0;
+        }
+
+        $repositories[$i][] = $repo;
+        $i++;
+    }
+
+    $view->repositories = $repositories;
 }
 
 $view->dispatch();
