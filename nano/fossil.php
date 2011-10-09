@@ -11,7 +11,7 @@ class Nano_Fossil
         $this->user = $user;
     }
 
-    public function newRepo($repo, $password = null, $private = 0)
+    public function newRepo($repo, $password = null, $private = 0, $projectCode = null)
     {
         if (!file_exists($this->path)) {
             mkdir($this->path);
@@ -37,6 +37,12 @@ class Nano_Fossil
 
             if (Nano_Db::execute($sql, $bind)) {
                 Nano_Db::setDb("sqlite:{$this->path}{$repo}.fossil");
+
+                if ($projectCode) {
+                    $sql  = "UPDATE config SET value = :code WHERE name = 'project-code'";
+                    $bind = array('code' => $projectCode);
+                    Nano_Db::execute($sql, $bind);
+                }
 
                 if ($password) {
                     $sql = "SELECT value FROM config WHERE name = 'project-code'";

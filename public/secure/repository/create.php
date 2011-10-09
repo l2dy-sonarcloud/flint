@@ -24,7 +24,13 @@ if (isset($_GET['type']) && $_GET['type'] == 'new' && $_POST) {
 
             $private = isset($_POST['private']) ? '1' : '0';
 
-            if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private)) {
+            if (isset($_POST['project-code']) && !empty($_POST['project-code'])) {
+                $projectCode = $_POST['project-code'];
+            } else {
+                $projectCode = null;
+            }
+
+            if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private, $projectCode)) {
                 $view->user     = $user;
                 $view->name     = $_POST['repository-name'];
                 $view->private  = $private;
