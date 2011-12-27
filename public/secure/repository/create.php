@@ -14,35 +14,30 @@ if (isset($_GET['type']) && $_GET['type'] == 'new' && $_POST) {
         $user   = Nano_Session::user();
         $fossil = new Nano_Fossil($user);
 
-        if (count($fossil->getRepos()) <= 10) {
-            if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
-                $password = $_POST['repository-password'];
-            }
-            else {
-                $password = null;
-            }
-
-            $private = isset($_POST['private']) ? '1' : '0';
-
-            if (isset($_POST['project-code']) && !empty($_POST['project-code'])) {
-                $projectCode = $_POST['project-code'];
-            } else {
-                $projectCode = null;
-            }
-
-            if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private, $projectCode)) {
-                $view->user     = $user;
-                $view->name     = $_POST['repository-name'];
-                $view->private  = $private;
-                $view->password = $result;
-                $view->success  = true;
-            }
-            else {
-                $view->error = true;
-            }
+        if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
+            $password = $_POST['repository-password'];
         }
         else {
-            $view->max = true;
+            $password = null;
+        }
+
+        $private = isset($_POST['private']) ? '1' : '0';
+
+        if (isset($_POST['project-code']) && !empty($_POST['project-code'])) {
+            $projectCode = $_POST['project-code'];
+        } else {
+            $projectCode = null;
+        }
+
+        if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private, $projectCode)) {
+            $view->user     = $user;
+            $view->name     = $_POST['repository-name'];
+            $view->private  = $private;
+            $view->password = $result;
+            $view->success  = true;
+        }
+        else {
+            $view->error = true;
         }
     }
     else {
@@ -61,32 +56,27 @@ if (isset($_GET['type']) && $_GET['type'] == 'clone' && $_POST) {
         $user   = Nano_Session::user();
         $fossil = new Nano_Fossil($user);
 
-        if (count($fossil->getRepos()) <= 10) {
-            if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
-                $password = $_POST['repository-password'];
-            }
-            else {
-                $password = null;
-            }
-
-            $private = isset($_POST['private']) ? '1' : '0';
-            $update  = isset($_POST['auto-update']) ? '1' : '0';
-
-            if ($result = $fossil->cloneRepo($_POST['repository-name'], $password, $_POST['clone-url'],
-                                             $private, $update)) {
-                $view->user     = $user;
-                $view->name     = $_POST['repository-name'];
-                $view->private  = $private;
-                $view->update   = $update;
-                $view->password = $result;
-                $view->success  = true;
-            }
-            else {
-                $view->error = true;
-            }
+        if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
+            $password = $_POST['repository-password'];
         }
         else {
-            $view->max = true;
+            $password = null;
+        }
+
+        $private = isset($_POST['private']) ? '1' : '0';
+        $update  = isset($_POST['auto-update']) ? '1' : '0';
+
+        if ($result = $fossil->cloneRepo($_POST['repository-name'], $password, $_POST['clone-url'],
+                                         $private, $update)) {
+            $view->user     = $user;
+            $view->name     = $_POST['repository-name'];
+            $view->private  = $private;
+            $view->update   = $update;
+            $view->password = $result;
+            $view->success  = true;
+        }
+        else {
+            $view->error = true;
         }
     }
     else {
@@ -109,22 +99,17 @@ if (isset($_GET['type']) && $_GET['type'] == 'upload' && $_POST) {
             $user   = Nano_Session::user();
             $fossil = new Nano_Fossil($user);
 
-            if (count($fossil->getRepos()) <= 10) {
-                $private = isset($_POST['private']) ? '1' : '0';
+            $private = isset($_POST['private']) ? '1' : '0';
 
-                if ($fossil->uploadRepo($_POST['repository-name'], $_POST['repository-password'], $private, $_FILES['upload'])) {
-                    $view->user     = $user;
-                    $view->name     = $_POST['repository-name'];
-                    $view->private  = $private;
-                    $view->password = 'sha1';
-                    $view->success  = true;
-                }
-                else {
-                    $view->error = true;
-                }
+            if ($fossil->uploadRepo($_POST['repository-name'], $_POST['repository-password'], $private, $_FILES['upload'])) {
+                $view->user     = $user;
+                $view->name     = $_POST['repository-name'];
+                $view->private  = $private;
+                $view->password = 'sha1';
+                $view->success  = true;
             }
             else {
-                $view->max = true;
+                $view->error = true;
             }
         }
     }

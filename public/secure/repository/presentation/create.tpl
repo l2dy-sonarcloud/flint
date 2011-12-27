@@ -26,7 +26,7 @@
         <li>
             <? $this->form_checkbox('private', null, 'Make this repository private? <em>(Prevents repositories from being listed as public only, lock down within fossil still required.)</em>') ?>
         </li>
-        <li><? $this->form_text('project-code', null, 'Override project code <em>(Optional)</em>') ?></li>
+        <li><? $this->form_text('project-code', null, 'Override project code <em>(Optional, but may be needed if pushing an already created repo to Flint.)</em>') ?></li>
     </ol>
     <p>
         <? $this->form_button('Create Repository') ?>
