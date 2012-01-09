@@ -200,11 +200,14 @@ class Nano_Session
         $sql = "DELETE FROM sessions
                  WHERE session_date < datetime('now', '-24 hour')";
 
-        if ($result = Nano_Db::query($sql)) {
-            return true;
-        }
+        Nano_Db::execute($sql);
 
-        return false;
+        $sql = "DELETE FROM tokens
+                 WHERE create_date < datetime('now', '-24 hour')";
+
+        Nano_Db::execute($sql);
+
+        return true;
     }
 
     public static function logout()
