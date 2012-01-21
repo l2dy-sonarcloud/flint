@@ -26,7 +26,10 @@ class Nano_Fossil
             exec("/usr/local/bin/fossil new -A {$this->user['username']} {$this->path}{$repo}.fossil", $output, $return);
 
             if ($return !== 0) {
-                unlink("{$this->path}{$repo}.fossil");
+                if (file_exists("{$this->path}{$repo}.fossil")) {
+                    unlink("{$this->path}{$repo}.fossil");
+                }
+
                 return false;
             }
 
@@ -96,7 +99,10 @@ class Nano_Fossil
                  $return);
 
             if ($return !== 0) {
-                unlink("{$this->path}{$repo}.fossil");
+                if (file_exists("{$this->path}{$repo}.fossil")) {
+                    unlink("{$this->path}{$repo}.fossil");
+                }
+
                 return false;
             }
 
@@ -169,7 +175,10 @@ class Nano_Fossil
             }
 
             if ($return !== 0) {
-                unlink("{$this->path}{$repo}.fossil");
+                if (file_exists("{$this->path}{$repo}.fossil")) {
+                    unlink("{$this->path}{$repo}.fossil");
+                }
+
                 return false;
             }
 
