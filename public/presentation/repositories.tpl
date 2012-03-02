@@ -1,7 +1,6 @@
 <h3>All public repositories</h3>
 <div id="sort">
 Sort by: <a href="/repositories/<?= $this->search ?>">Default</a> &bull; <a href="/repositories/<?= $this->search ?>sort/user/">Developer</a> &bull; <a href="/repositories/<?= $this->search ?>sort/repository/">Project</a>
-<br />
 <form action="/repositories/" method="post">
     <input type="text" name="search" id="search" placeholder="project name" value="<?= $this->term ?>" />
 </form>
