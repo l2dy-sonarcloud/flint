@@ -2,7 +2,7 @@
 
 $view = new Nano_View;
 
-if ($_POST['search']) {
+if (isset($_POST['search'])) {
     $term = preg_replace('/[^a-zA-Z0-9_-]/', null, $_POST['search']);
     header('Location: /repositories/search/' . $term);
     die();
