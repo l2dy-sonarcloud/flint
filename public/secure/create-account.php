@@ -10,7 +10,7 @@ if ($_POST) {
     $rules['first-name']     = 'required,alpha';
     $rules['last-name']      = 'required,alpha';
     $rules['email']          = 'required,email,uniqueEmail';
-    $rules['username']       = 'required,unique';
+    $rules['username']       = 'required,username,unique';
     $rules['password']       = 'required';
     $rules['password-again'] = 'required,match[password]';
 

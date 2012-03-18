@@ -6,6 +6,7 @@ class Nano_Validation_Rules
         'required'    => '{{field}} is required.',
         'login'       => '{{field}} and password combination is invalid.',
         'email'       => '{{field}} must be a valid email address.',
+        'username'    => '{{field}} cannot contain spaces.',
         'alpha'       => '{{field}} must only contain letters.',
         'numeric'     => '{{field}} must only contain numbers.',
         'filename'    => '{{field}} must only contain letters, numbers, underscores and dashes.',
@@ -33,9 +34,18 @@ class Nano_Validation_Rules
         return false;
     }
 
-     public static function email($val)
+    public static function email($val)
     {
         if (preg_match('/^[a-zA-Z0-9._-]+\@[a-z0-9.-]+\.[a-z]{2,6}$/', $val)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function username($val)
+    {
+        if (preg_match('/^[^ ]+$/', $val)) {
             return true;
         }
 
