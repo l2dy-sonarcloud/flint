@@ -8,7 +8,7 @@ class Nano_Validation_Rules
         'email'       => '{{field}} must be a valid email address.',
         'username'    => '{{field}} cannot contain spaces.',
         'alpha'       => '{{field}} must only contain letters.',
-        'name'        => '{{field}} must only contain letters, spaces and hypens.',
+        'name'        => '{{field}} must only contain letters, spaces and hyphens.',
         'numeric'     => '{{field}} must only contain numbers.',
         'filename'    => '{{field}} must only contain letters, numbers, underscores and dashes.',
         'length'      => '{{field}} cannot be longer than {{option}} characters.',
