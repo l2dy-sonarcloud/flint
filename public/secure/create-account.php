@@ -7,8 +7,8 @@ if ($_POST) {
     $validation = new Nano_Validation();
 
     $rules                   = array();
-    $rules['first-name']     = 'required,alpha';
-    $rules['last-name']      = 'required,alpha';
+    $rules['first-name']     = 'required,name';
+    $rules['last-name']      = 'required,name';
     $rules['email']          = 'required,email,uniqueEmail';
     $rules['username']       = 'required,username,unique';
     $rules['password']       = 'required';
@@ -21,7 +21,7 @@ if ($_POST) {
         $user['email']     = $_POST['email'];
         $user['username']  = $_POST['username'];
         $user['password']  = $_POST['password'];
-        
+
         if (Nano_Session::create($user)) {
             $_SESSION['new-account'] = true;
             Nano_Session::login($user['username'], $user['password']);

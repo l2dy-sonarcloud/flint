@@ -8,6 +8,7 @@ class Nano_Validation_Rules
         'email'       => '{{field}} must be a valid email address.',
         'username'    => '{{field}} cannot contain spaces.',
         'alpha'       => '{{field}} must only contain letters.',
+        'name'        => '{{field}} must only contain letters, spaces and hypens.',
         'numeric'     => '{{field}} must only contain numbers.',
         'filename'    => '{{field}} must only contain letters, numbers, underscores and dashes.',
         'length'      => '{{field}} cannot be longer than {{option}} characters.',
@@ -36,7 +37,7 @@ class Nano_Validation_Rules
 
     public static function email($val)
     {
-        if (preg_match('/^[a-zA-Z0-9._-]+\@[a-z0-9.-]+\.[a-z]{2,6}$/', $val)) {
+        if (preg_match('/^[a-zA-Z0-9+._-]+\@[a-z0-9.-]+\.[a-z]{2,6}$/', $val)) {
             return true;
         }
 
@@ -61,6 +62,15 @@ class Nano_Validation_Rules
         return false;
     }
 
+    public static function name($val)
+    {
+        if (preg_match('/^[a-z -]+$/i', $val)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public static function numeric($val)
     {
         if (preg_match('/^[0-9]+$/', $val)) {
@@ -79,7 +89,7 @@ class Nano_Validation_Rules
     }
 
     public static function length($val, $option)
-    {   
+    {
         if (strlen($val) <= $option) {
             return true;
         }
