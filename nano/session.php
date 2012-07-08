@@ -109,9 +109,12 @@ class Nano_Session
                     $sql = "UPDATE users
                                SET password = '',
                                    salt     = '',
-                                   hash     = :hash";
+                                   hash     = :hash
+                             WHERE id = :id";
 
-                    $bind = array('hash' => $hash);
+                    $bind         = array();
+                    $bind['hash'] = $hash;
+                    $bind['id']   = $result['id'];
 
                     Nano_Db::execute($sql, $bind);
                 }
