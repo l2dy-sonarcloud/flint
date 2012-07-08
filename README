@@ -6,10 +6,17 @@ PDO_SQLITE driver for PHP5. All you should have to do to get it up and
 running is to use the db/schema.sql file to create the db/flint.db
 database and setup a virtual host under Apache.
 
-Something like this should work:
+Flint now uses bcrypt for password hashing which relies on the openssl
+extension to generate random bytes. If you are upgrading from a previous
+version of Flint you will need to run the following SQL statement
+against db/flint.db:
+
+ALTER TABLE users ADD COLUMN hash text;
+
+Here is an example VirtualHost:
 
 <VirtualHost *:80>
-    ServerName flint.tld 
+    ServerName flint.tld
     ServerAlias www.flint.tld
     ServerAdmin you@flint.tld
     DocumentRoot /var/www/htdocs/flint/public

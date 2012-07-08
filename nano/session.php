@@ -11,20 +11,18 @@ class Nano_Session
 
     public static function create($user)
     {
-        $user['salt']     = base_convert(rand(), 10, 36);
-        $user['password'] = hash_hmac('md5', $user['password'], $user['salt']);
+        $user['hash'] = crypt($user['password'], self::generateSalt());
 
         $sql = "INSERT INTO users
-                       (first_name, last_name, email, username, password, salt)
-                VALUES (:first, :last, :email, :username, :password, :salt)";
+                       (first_name, last_name, email, username, hash)
+                VALUES (:first, :last, :email, :username, :hash)";
 
         $bind             = array();
         $bind['first']    = $user['firstname'];
         $bind['last']     = $user['lastname'];
         $bind['email']    = $user['email'];
         $bind['username'] = $user['username'];
-        $bind['password'] = $user['password'];
-        $bind['salt']     = $user['salt'];
+        $bind['hash']     = $user['hash'];
 
         if (Nano_Db::execute($sql, $bind)) {
             return true;
@@ -63,14 +61,13 @@ class Nano_Session
                        email      = :email";
 
         if (isset($info['password'])) {
-            $info['salt']     = base_convert(rand(), 10, 36);
-            $info['password'] = hash_hmac('md5', $info['password'], $info['salt']);
+            $info['hash'] = crypt($info['password'], self::generateSalt());
 
-            $bind['password'] = $info['password'];
-            $bind['salt']     = $info['salt'];
+            $bind['hash'] = $info['hash'];
 
-            $sql .= ", password = :password,
-                       salt     = :salt";
+            $sql .= ", password = '',
+                       salt     = '',
+                       hash     = :hash";
         }
 
         $sql .= " WHERE id = :id";
@@ -98,7 +95,27 @@ class Nano_Session
 
         if ($result = Nano_Db::query($sql, $bind)) {
             $result = array_pop($result);
-            if (hash_hmac('md5', $password, $result['salt']) == $result['password']) {
+
+            if (!empty($result['hash'])) {
+                $verify = (crypt($password, $result['hash']) == $result['hash']);
+            } else {
+                $verify = (hash_hmac('md5', $password, $result['salt']) == $result['password']);
+            }
+
+            if ($verify) {
+                if (empty($result['hash'])) {
+                    $hash = crypt($password, self::generateSalt());
+
+                    $sql = "UPDATE users
+                               SET password = '',
+                                   salt     = '',
+                                   hash     = :hash";
+
+                    $bind = array('hash' => $hash);
+
+                    Nano_Db::execute($sql, $bind);
+                }
+
                 $sql = "REPLACE INTO sessions
                                 (user_id, session_id, session_date)
                          VALUES (:user, :session, datetime('now'))";
@@ -293,6 +310,11 @@ class Nano_Session
         }
 
         return true;
+    }
+
+    protected static function generateSalt()
+    {
+        return '$2a$12$' . substr(str_replace('+', '.', base64_encode(openssl_random_pseudo_bytes(16))), 0, 22);
     }
 }
 

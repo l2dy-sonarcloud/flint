@@ -25,6 +25,5 @@ CREATE TABLE users (
     last_name text,
     email text,
     username text,
-    password text,
-    salt text
+    hash text
 );
