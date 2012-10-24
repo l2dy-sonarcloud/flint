@@ -239,6 +239,7 @@ class Nano_Fossil
     {
         if (file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
+            putenv("USER={$this->user['username']}");
             exec("/usr/local/bin/fossil pull {$url} -R {$this->path}{$repo}.fossil", $output, $return);
 
             if ($return !== 0) {
