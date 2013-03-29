@@ -1,5 +1,5 @@
-Flint is released under the AGPLv3 license, please see COPYRIGHT and
-COPYING for more information.
+Flint is released under the ISC license, please see COPYRIGHT for more
+information.
 
 Flint was developed for Apache, PHP5 and SQLite. It also uses the
 PDO_SQLITE driver for PHP5. All you should have to do to get it up and
