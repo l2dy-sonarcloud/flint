@@ -24,6 +24,7 @@ class Nano_Fossil
         if (!file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
+            putenv("GATEWAY_INTERFACE");
             exec("/usr/local/bin/fossil new -A {$this->user['username']} {$this->path}{$repo}.fossil", $output, $return);
 
             if ($return !== 0) {
@@ -97,6 +98,7 @@ class Nano_Fossil
         if (!file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
+            putenv("GATEWAY_INTERFACE");
             exec("/usr/local/bin/fossil clone -A {$this->user['username']} {$url} {$this->path}{$repo}.fossil", $output,
                  $return);
 
@@ -165,6 +167,7 @@ class Nano_Fossil
         if (!file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
+            putenv("GATEWAY_INTERFACE");
 
             if (!@move_uploaded_file($file['tmp_name'], "{$this->path}{$repo}.fossil")) {
                 return false;
@@ -243,6 +246,7 @@ class Nano_Fossil
         if (file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
+            putenv("GATEWAY_INTERFACE");
             exec("/usr/local/bin/fossil pull {$url} -R {$this->path}{$repo}.fossil", $output, $return);
 
             if ($return !== 0) {
