@@ -4,7 +4,7 @@ RewriteBase /
 ErrorDocument 403 /errors/403/
 ErrorDocument 404 /errors/404/
 
-RewriteRule ^(.*)\.(css|js|ico|jpg|png|gif)(.*)$ - [L]
+RewriteRule ^(.*)\.(css|js|ico|jpg|png|gif|txt)(.*)$ - [L]
 
 RewriteCond %{REQUEST_URI} ^/[^\.]+[^/]$
 RewriteRule ^(.*)$ /$1/ [R=301,L]
