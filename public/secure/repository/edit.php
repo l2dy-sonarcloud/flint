@@ -39,11 +39,12 @@ if ($repo = $fossil->getRepoById($_GET['id'])) {
 
                 if (isset($_POST['clone-url']) && $_POST['clone-url'] != "") {
                     $cloned  = '1';
-                    if ($fossil->pullRepo($repo['name'], $_POST['clone-url'])) {
+                    if ($fossil->pullRepo($repo['name'], $_POST['clone-url'], $output)) {
                         $success = true;
                     } else {
                         $success     = false;
                         $view->error = true;
+                        $view->errormsg = join("\n", $output);
                     }
                 } else {
                     $success = true;

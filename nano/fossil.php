@@ -241,13 +241,13 @@ class Nano_Fossil
         return false;
     }
 
-    public function pullRepo($repo, $url = '')
+    public function pullRepo($repo, $url = '', &$output)
     {
         if (file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
             putenv("GATEWAY_INTERFACE");
-            exec("/usr/local/bin/fossil pull {$url} -R {$this->path}{$repo}.fossil", $output, $return);
+            exec("/usr/local/bin/fossil pull {$url} -R {$this->path}{$repo}.fossil 2>&1", $output, $return);
 
             if ($return !== 0) {
                 return false;

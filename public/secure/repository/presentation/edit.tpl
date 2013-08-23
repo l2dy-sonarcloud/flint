@@ -1,7 +1,11 @@
 <p>Please fill out the form below to update your repositories settings. Changing the clone url causes a pull.</p>
 
 <? if (isset($this->error)): ?>
-<p class="error">Something failed during the update process please try again.</p>
+<p class="error">Something failed during the update process please try again.
+<? if (isset($this->errormsg)): ?>
+<pre><?= $this->errormsg ?></pre>
+<? endif ?>
+</p>
 <? endif ?>
 
 <form action="<?= $_SERVER['REQUEST_URI'] ?>" method="post">
