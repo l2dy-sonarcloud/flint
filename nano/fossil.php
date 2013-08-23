@@ -241,11 +241,11 @@ class Nano_Fossil
         return false;
     }
 
-    public function pullRepo($repo, $url = '', &$output = null)
+    public function pullRepo($repo, $url = '', &$outputstr = null)
     {
         if ($url != '') {
             if (file_exists($url) || preg_match('/:\/\//', $url) == 0) {
-                $output = Array("Invalid URL");
+                $outputstr = "Invalid URL";
                 return false;
             }
         }
@@ -255,10 +255,14 @@ class Nano_Fossil
             putenv("USER={$this->user['username']}");
             putenv("GATEWAY_INTERFACE");
             if ($url == '') {
-                exec("/usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1", $output, $return);
+                exec("/usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                  $output, $return);
             } else {
-                exec("/usr/local/bin/fossil pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1", $output, $return);
+                exec("/usr/local/bin/fossil pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                  $output, $return);
             }
+
+            $outputstr = join("\n", $output);
 
             if ($return !== 0) {
                 return false;
@@ -266,6 +270,8 @@ class Nano_Fossil
 
             return true;
         }
+
+        $outputstr = "Invalid repository";
 
         return false;
     }

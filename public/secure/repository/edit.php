@@ -44,7 +44,7 @@ if ($repo = $fossil->getRepoById($_GET['id'])) {
                     } else {
                         $success     = false;
                         $view->error = true;
-                        $view->errormsg = join("\n", $output);
+                        $view->errormsg = $output;
                     }
                 } else {
                     $success = true;
