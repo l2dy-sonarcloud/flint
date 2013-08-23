@@ -1,1 +1,1 @@
-<button type="submit" tabindex="<?= $this->idx ?>" name="submit" value="submit"><?= $this->default ?></button>
+<button type="submit" tabindex="<?= $this->idx ?>" name="submit" value="<?= $this->default ?>"><?= $this->default ?></button>

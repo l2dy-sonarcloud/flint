@@ -15,54 +15,62 @@ if ($repo = $fossil->getRepoById($_GET['id'])) {
     $view->repo = $repo;
 
     if($_POST) {
-        $validation = new Nano_Validation();
-
-        $rules = array();
-
-        if ($repo['cloned']) {
-            $rules['clone-url'] = 'required';
+        if (isset($_POST['submit']) && $_POST['submit'] == "Download Repository File") {
+            header('Content-type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . $repo['name'] . '.fossil"');
+            readfile($repo['repo-file']);
+            die();
         }
-
-        if ($validation->validate($_POST, $rules)) {
-            if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
-                $password = $_POST['repository-password'];
-            }
-            else {
-                $password = null;
-            }
-
-            $private = isset($_POST['private']) ? '1' : '0';
-            $update  = isset($_POST['auto-update']) ? '1' : '0';
-
+        if (isset($_POST['submit']) && $_POST['submit'] == "Update Repository") {
+            $validation = new Nano_Validation();
+    
+            $rules = array();
+    
             if ($repo['cloned']) {
-                if ($fossil->pullRepo($repo['name'], $_POST['clone-url'])) {
+                $rules['clone-url'] = 'required';
+            }
+    
+            if ($validation->validate($_POST, $rules)) {
+                if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
+                    $password = $_POST['repository-password'];
+                }
+                else {
+                    $password = null;
+                }
+    
+                $private = isset($_POST['private']) ? '1' : '0';
+                $update  = isset($_POST['auto-update']) ? '1' : '0';
+    
+                if ($repo['cloned']) {
+                    if ($fossil->pullRepo($repo['name'], $_POST['clone-url'])) {
+                        $success = true;
+                    }
+                    else {
+                        $success     = false;
+                        $view->error = true;
+                    }
+                }
+                else {
+                    $success = true;
+                }
+    
+                if ($success && $fossil->updateRepo($repo['name'], $private, $update, $password)) {
                     $success = true;
                 }
                 else {
                     $success     = false;
                     $view->error = true;
                 }
+    
+                if ($success) {
+                    $_SESSION['update'] = $repo['name']; 
+                    header('Location: /secure/');
+                    die();
+                }
             }
             else {
-                $success = true;
+                Nano_Variable::set('validationErrors', $validation->errors());
             }
-
-            if ($success && $fossil->updateRepo($repo['name'], $private, $update, $password)) {
-                $success = true;
-            }
-            else {
-                $success     = false;
-                $view->error = true;
-            }
-
-            if ($success) {
-                $_SESSION['update'] = $repo['name']; 
-                header('Location: /secure/');
-                die();
-            }
-        }
-        else {
-            Nano_Variable::set('validationErrors', $validation->errors());
         }
     }
 }

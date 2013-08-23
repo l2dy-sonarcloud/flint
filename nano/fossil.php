@@ -290,6 +290,8 @@ class Nano_Fossil
             return false;
         }
 
+        $return['repo-file'] = "{$this->path}{$return['name']}.fossil";
+
         Nano_Db::setDb("sqlite:{$this->path}{$return['name']}.fossil");
 
         $sql  = "SELECT value FROM config WHERE name = 'last-sync-url'";
