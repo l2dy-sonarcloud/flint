@@ -11,10 +11,10 @@ $sql = "SELECT *
 if ($result = Nano_Db::query($sql)) {
     foreach ($result as $repo) {
         $fossil = new Nano_Fossil($repo);
-        if ($fossil->pullRepo($repo['name'])) {
+        if ($fossil->pullRepo($repo['name'], '', $output)) {
             echo "{$repo['name']}.fossil successfully updated.\n";
         } else {
-            echo "{$repo['name']}.fossil failed to be updated.\n";
+            echo "{$repo['name']}.fossil failed to be updated.\n" . join("\n        ", $output);
         }
     }
 }         
