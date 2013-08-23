@@ -35,6 +35,9 @@ class Nano_Fossil
                 return false;
             }
 
+            /* Install default configuration */
+            exec("/usr/local/bin/fossil configuration import -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " " . escapeshellarg($_SERVER['DOCUMENT_ROOT'] . "/../config/fossil-default.cnf"), $output, $return);
+
             $sql = "INSERT INTO repositories
                            (user_id, name, private, cloned, auto_update)
                     VALUES (:id, :name, :private, 0, 0)";
