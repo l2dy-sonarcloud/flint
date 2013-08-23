@@ -14,7 +14,7 @@ if ($result = Nano_Db::query($sql)) {
         if ($fossil->pullRepo($repo['name'], '', $output)) {
             echo "{$repo['name']}.fossil successfully updated.\n";
         } else {
-            echo "{$repo['name']}.fossil failed to be updated.\n" . $output;
+            echo "{$repo['name']}.fossil failed to be updated.\n" . $output . "\n------\n";
         }
     }
 }         
