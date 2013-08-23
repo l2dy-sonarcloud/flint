@@ -6,7 +6,7 @@ $sql = "SELECT *
           FROM repositories AS r
          INNER JOIN users AS u
             ON r.user_id = u.id
-         WHERE auto_update = 1";
+         WHERE auto_update = 1 AND cloned = 1";
 
 if ($result = Nano_Db::query($sql)) {
     foreach ($result as $repo) {

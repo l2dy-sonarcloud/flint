@@ -243,22 +243,6 @@ class Nano_Fossil
 
     public function pullRepo($repo, $url = '')
     {
-        if ($url == "") {
-            $sql = "UPDATE repositories
-                       SET cloned      = 0
-                     WHERE user_id = :id
-                       AND name    = :repo";
-
-            $bind = array(
-                'id'      => $this->user['id'],
-                'repo'    => $repo,
-            );
-
-            Nano_Db::execute($sql, $bind);
-
-            return true;
-        }
-
         if (file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
@@ -268,18 +252,6 @@ class Nano_Fossil
             if ($return !== 0) {
                 return false;
             }
-
-            $sql = "UPDATE repositories
-                       SET cloned      = 1
-                     WHERE user_id = :id
-                       AND name    = :repo";
-
-            $bind = array(
-                'id'      => $this->user['id'],
-                'repo'    => $repo,
-            );
-
-            Nano_Db::execute($sql, $bind);
 
             return true;
         }
@@ -355,18 +327,20 @@ class Nano_Fossil
         return false;
     }
 
-    public function updateRepo($repo, $private, $update, $password = null)
+    public function updateRepo($repo, $private, $update, $cloned, $password = null)
     {
         if (file_exists("{$this->path}{$repo}.fossil")) {
             $sql = "UPDATE repositories
                        SET private     = :private,
-                           auto_update = :auto
+                           auto_update = :auto,
+                           cloned      = :cloned
                      WHERE user_id = :id
                        AND name    = :repo";
 
             $bind = array(
                 'private' => $private,
                 'auto'    => $update,
+                'cloned'  => $cloned,
                 'id'      => $this->user['id'],
                 'repo'    => $repo,
             );

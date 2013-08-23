@@ -36,15 +36,21 @@ if ($repo = $fossil->getRepoById($_GET['id'])) {
     
                 $private = isset($_POST['private']) ? '1' : '0';
                 $update  = isset($_POST['auto-update']) ? '1' : '0';
-    
-                if ($fossil->pullRepo($repo['name'], $_POST['clone-url'])) {
-                    $success = true;
+
+                if (isset($_POST['clone-url']) && $_POST['clone-url'] != "") {
+                    $cloned  = '1';
+                    if ($fossil->pullRepo($repo['name'], $_POST['clone-url'])) {
+                        $success = true;
+                    } else {
+                        $success     = false;
+                        $view->error = true;
+                    }
                 } else {
-                    $success     = false;
-                    $view->error = true;
+                    $success = true;
+                    $cloned  = '0';
                 }
     
-                if ($success && $fossil->updateRepo($repo['name'], $private, $update, $password)) {
+                if ($success && $fossil->updateRepo($repo['name'], $private, $update, $cloned, $password)) {
                     $success = true;
                 }
                 else {
