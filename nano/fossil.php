@@ -243,6 +243,22 @@ class Nano_Fossil
 
     public function pullRepo($repo, $url = '')
     {
+        if ($url == "") {
+            $sql = "UPDATE repositories
+                       SET cloned      = 0
+                     WHERE user_id = :id
+                       AND name    = :repo";
+
+            $bind = array(
+                'id'      => $this->user['id'],
+                'repo'    => $repo,
+            );
+
+            Nano_Db::execute($sql, $bind);
+
+            return true;
+        }
+
         if (file_exists("{$this->path}{$repo}.fossil")) {
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
@@ -252,6 +268,18 @@ class Nano_Fossil
             if ($return !== 0) {
                 return false;
             }
+
+            $sql = "UPDATE repositories
+                       SET cloned      = 1
+                     WHERE user_id = :id
+                       AND name    = :repo";
+
+            $bind = array(
+                'id'      => $this->user['id'],
+                'repo'    => $repo,
+            );
+
+            Nano_Db::execute($sql, $bind);
 
             return true;
         }
@@ -294,11 +322,13 @@ class Nano_Fossil
 
         Nano_Db::setDb("sqlite:{$this->path}{$return['name']}.fossil");
 
-        $sql  = "SELECT value FROM config WHERE name = 'last-sync-url'";
+        if ($return['cloned']) {
+            $sql  = "SELECT value FROM config WHERE name = 'last-sync-url'";
 
-        if ($result = Nano_Db::query($sql)) {
-            $url                 = array_pop($result);
-            $return['clone-url'] = $url['value'];
+            if ($result = Nano_Db::query($sql)) {
+                $url                 = array_pop($result);
+                $return['clone-url'] = $url['value'];
+            }
         }
 
         $sql  = "SELECT value FROM config WHERE name = 'last-sync-pw'";
