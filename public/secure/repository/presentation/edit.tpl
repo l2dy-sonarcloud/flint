@@ -18,6 +18,6 @@
         </li>
     </ol>
     <p>
-        <? $this->form_button('Update Repository') ?>   <? $this->form_button('Download Repository File') ?> 
+        <? $this->form_button('Update Repository') ?>   <? $this->form_button('Download File') ?> 
     </p>
 </form>

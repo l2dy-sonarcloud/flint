@@ -15,7 +15,7 @@ if ($repo = $fossil->getRepoById($_GET['id'])) {
     $view->repo = $repo;
 
     if($_POST) {
-        if (isset($_POST['submit']) && $_POST['submit'] == "Download Repository File") {
+        if (isset($_POST['submit']) && $_POST['submit'] == "Download File") {
             header('Content-type: application/octet-stream');
             header('Content-Disposition: attachment; filename="' . $repo['name'] . '.fossil"');
             readfile($repo['repo-file']);
