@@ -6,7 +6,7 @@
 <p class="success"><?= $this->pull ?> was successfully updated.</p>
 <? endif ?>
 
-<h3>Public Repositories</h3>
+<h3><a href="/user/<?= $this->user['username'] ?>/">Public Repositories</a></h3>
 <? if (count($this->public)): ?>
     <ul>
     <? foreach ($this->public as $repo): ?>
