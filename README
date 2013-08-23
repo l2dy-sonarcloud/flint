@@ -38,4 +38,4 @@ You will also want to make sure your setup works with .htaccess files
 and that db/flint.db and repos/ is writable by the user running apache.
 
 If you find any bugs or security issues, please submit a ticket at
-http://chiselapp.com/user/james/repository/flint/reportlist
+http://chiselapp.com/user/rkeene/repository/flint/reportlist
