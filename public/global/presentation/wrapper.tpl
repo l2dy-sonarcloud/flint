@@ -35,12 +35,12 @@
                 </ul>
                 <? if (Nano_Session::user()): ?>
                 <ul id="sub-navigation">
-                    <li class="last"><a href="/user/<? echo Nano_Session::user()['username'] ?>/">My Public Repositories</a></li>
                     <? if (strpos($_SERVER['REQUEST_URI'], '/secure/repository/create') !== false): ?>
                     <li><a href="/secure/repository/create/type/new/">New Repository</a></li>
                     <li><a href="/secure/repository/create/type/clone/">Clone Repository</a></li>
-                    <li class="last"><a href="/secure/repository/create/type/upload/">Upload Repository</a></li>
+                    <li><a href="/secure/repository/create/type/upload/">Upload Repository</a></li>
                     <? endif; ?>
+                    <li class="last"><a href="/user/<? echo Nano_Session::user()['username'] ?>/">My Public Repositories</a></li>
                 </ul>
                 <? endif ?>
             </div>
