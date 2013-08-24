@@ -20,7 +20,7 @@
         <div class="wrap">
             <h1><a href="<? if (Nano_Session::user()): ?>/secure/<? else:?>/<? endif ?>">Flint</a></h1>
             <div id="navigation">
-                <ul id="main-navigation"<? if (Nano_Session::user() || strpos($_SERVER['REQUEST_URI'], '/secure/repository/create') !== false): ?> class="alt"<? endif; ?>>
+                <ul id="main-navigation"<? if (Nano_Session::user()): ?> class="alt"<? endif; ?>>
                     <? if (Nano_Session::user()): ?>
                     <li><a href="/secure/">Dashboard</a></li>
                     <li><a href="/secure/repository/create/">Create Repository</a></li>
