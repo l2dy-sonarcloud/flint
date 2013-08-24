@@ -40,6 +40,12 @@
                     <li class="last"><a href="/secure/repository/create/type/upload/">Upload Repository</a></li>
                 </ul>
                 <? endif; ?>
+                <? if (preg_match('/\/secure\/$/', $_SERVER['REQUEST_URI']) == 1): ?>
+                <ul id="sub-navigation">
+                    <li><a href="/repositories/">All Public Repositories</a></li>
+                    <li class="last"><a href="/user/<? echo Nano_Session::user()['username'] ?>/">My Public Repositories</a></li>
+                </ul>
+                <? endif; ?>
             </div>
             <div class="clear"></div>
         </div>
