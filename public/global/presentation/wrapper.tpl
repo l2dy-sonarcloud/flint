@@ -33,19 +33,16 @@
                     <li class="last"><a href="/secure/log-in/">Log In</a></li>
                     <? endif ?>
                 </ul>
-                <? if (strpos($_SERVER['REQUEST_URI'], '/secure/repository/create') !== false): ?>
+                <? if (Nano_Session::user()): ?>
                 <ul id="sub-navigation">
+                    <li class="last"><a href="/user/<? echo Nano_Session::user()['username'] ?>/">My Public Repositories</a></li>
+                    <? if (strpos($_SERVER['REQUEST_URI'], '/secure/repository/create') !== false): ?>
                     <li><a href="/secure/repository/create/type/new/">New Repository</a></li>
                     <li><a href="/secure/repository/create/type/clone/">Clone Repository</a></li>
                     <li class="last"><a href="/secure/repository/create/type/upload/">Upload Repository</a></li>
+                    <? endif; ?>
                 </ul>
-                <? endif; ?>
-                <? if (preg_match('/\/secure\/$/', $_SERVER['REQUEST_URI']) == 1): ?>
-                <ul id="sub-navigation">
-                    <li><a href="/repositories/">All Public Repositories</a></li>
-                    <li class="last"><a href="/user/<? echo Nano_Session::user()['username'] ?>/">My Public Repositories</a></li>
-                </ul>
-                <? endif; ?>
+                <? endif ?>
             </div>
             <div class="clear"></div>
         </div>
