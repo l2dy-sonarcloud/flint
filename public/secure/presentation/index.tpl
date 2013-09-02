@@ -10,7 +10,7 @@
 <? if (count($this->public)): ?>
     <ul>
     <? foreach ($this->public as $repo): ?>
-        <li><a href="/user/<?= $this->user['username'] ?>/repository/<?= $repo['name'] ?>"><?= $repo['name'] ?></a> - <? if ($repo['cloned']): ?><a href="/secure/repository/pull/id/<?= $repo['id'] ?>">Pull</a> | <? endif ?><a href="/secure/repository/edit/id/<?= $repo['id'] ?>">Edit</a> | <a href="/secure/repository/remove/id/<?= $repo['id'] ?>" class="remove">Remove</a></li>
+        <li><a href="/user/<?= $this->user['username'] ?>/repository/<?= $repo['name'] ?>"><?= $repo['name'] ?></a> - <? if ($repo['cloned']): ?><a href="/secure/repository/pull/id/<?= $repo['id'] ?>">Pull</a> | <? endif ?><a href="/secure/repository/edit/id/<?= $repo['id'] ?>">Edit</a> | <a href="/secure/repository/remove/id/<?= $repo['id'] ?>" class="remove">Remove</a> | <a href="/secure/repository/help_clone/id/<?= $repo['id'] ?>">How to Clone</a></li>
     <? endforeach ?>
     </ul>
 <? else: ?>
@@ -20,7 +20,7 @@
 <? if (count($this->private)): ?>
     <ul>
     <? foreach ($this->private as $repo): ?>
-        <li><a href="/user/<?= $this->user['username'] ?>/repository/<?= $repo['name'] ?>"><?= $repo['name'] ?></a> - <? if ($repo['cloned']): ?><a href="/secure/repository/pull/id/<?= $repo['id'] ?>">Pull</a> | <? endif ?><a href="/secure/repository/edit/id/<?= $repo['id'] ?>">Edit</a> | <a href="/secure/repository/remove/id/<?= $repo['id'] ?>" class="remove">Remove</a></li>
+        <li><a href="/user/<?= $this->user['username'] ?>/repository/<?= $repo['name'] ?>"><?= $repo['name'] ?></a> - <? if ($repo['cloned']): ?><a href="/secure/repository/pull/id/<?= $repo['id'] ?>">Pull</a> | <? endif ?><a href="/secure/repository/edit/id/<?= $repo['id'] ?>">Edit</a> | <a href="/secure/repository/remove/id/<?= $repo['id'] ?>" class="remove">Remove</a> | <a href="/secure/repository/help_clone/id/<?= $repo['id'] ?>">How to Clone</a></li>
     <? endforeach ?>
     </ul>
 <? else: ?>
