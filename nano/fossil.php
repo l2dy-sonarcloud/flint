@@ -102,7 +102,7 @@ class Nano_Fossil
             putenv('HOME=/tmp');
             putenv("USER={$this->user['username']}");
             putenv("GATEWAY_INTERFACE");
-            exec("/usr/local/bin/fossil clone -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg($url) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output,
+            exec("timeout 3600 /usr/local/bin/fossil clone -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg($url) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output,
                  $return);
 
             if ($return !== 0) {
@@ -258,10 +258,10 @@ class Nano_Fossil
             putenv("USER={$this->user['username']}");
             putenv("GATEWAY_INTERFACE");
             if ($url == '') {
-                exec("/usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                exec("timeout 3600 /usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
             } else {
-                exec("/usr/local/bin/fossil pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                exec("timeout 3600 /usr/local/bin/fossil pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
             }
 
