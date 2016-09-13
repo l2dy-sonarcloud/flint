@@ -14,12 +14,10 @@ class Nano_Session
         $user['hash'] = crypt($user['password'], self::generateSalt());
 
         $sql = "INSERT INTO users
-                       (first_name, last_name, email, username, hash)
-                VALUES (:first, :last, :email, :username, :hash)";
+                       (email, username, hash)
+                VALUES (:email, :username, :hash)";
 
         $bind             = array();
-        $bind['first']    = $user['firstname'];
-        $bind['last']     = $user['lastname'];
         $bind['email']    = $user['email'];
         $bind['username'] = $user['username'];
         $bind['hash']     = $user['hash'];
@@ -56,9 +54,7 @@ class Nano_Session
         $bind = array();
 
         $sql = "UPDATE users
-                   SET first_name = :first,
-                       last_name  = :last,
-                       email      = :email";
+                   SET email      = :email";
 
         if (isset($info['password'])) {
             $info['hash'] = crypt($info['password'], self::generateSalt());
@@ -72,8 +68,6 @@ class Nano_Session
 
         $sql .= " WHERE id = :id";
 
-        $bind['first']    = $info['firstname'];
-        $bind['last']     = $info['lastname'];
         $bind['email']    = $info['email'];
         $bind['id']       = $user['id'];
 
@@ -201,7 +195,7 @@ class Nano_Session
             $headers = "From: Flint <no-reply@{$_SERVER['SERVER_NAME']}>\r\n" .
                        "Reply-To: Flint <no-reply@{$_SERVER['SERVER_NAME']}>";
 
-            $message = "{$result['first_name']},\n\nUse the link below to reset your {$_SERVER['SERVER_NAME']} password. " .
+            $message = "{$result['email']},\n\nUse the link below to reset your {$_SERVER['SERVER_NAME']} password. " .
                        "Your one time token expires in 24 hours.\n\n" .
                        "https://{$_SERVER['SERVER_NAME']}/secure/log-in/token/{$bind['token']}\n\n" .
                        "The Flint Team";

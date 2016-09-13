@@ -9,8 +9,6 @@
 
 <form action="/secure/account/" method="post">
     <ol>
-        <li><? $this->form_text('first-name', $this->user['first_name']) ?></li>
-        <li><? $this->form_text('last-name', $this->user['last_name']) ?></li>
         <li><? $this->form_text('email', $this->user['email']) ?></li>
         <li><? $this->form_password('password') ?></li>
         <li><? $this->form_password('password-again') ?></li>

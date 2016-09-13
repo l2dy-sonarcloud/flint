@@ -6,8 +6,6 @@
 
 <form action="/secure/create-account/" method="post">
     <ol>
-        <li><? $this->form_text('first-name') ?></li>
-        <li><? $this->form_text('last-name') ?></li>
         <li><? $this->form_text('email') ?></li>
         <li><? $this->form_text('username') ?></li>
         <li><? $this->form_password('password') ?></li>

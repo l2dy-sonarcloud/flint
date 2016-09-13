@@ -7,8 +7,6 @@ if ($_POST) {
     $validation = new Nano_Validation();
 
     $rules                   = array();
-    $rules['first-name']     = 'required,name';
-    $rules['last-name']      = 'required,name';
     $rules['email']          = 'required,email,uniqueEmail';
     $rules['username']       = 'required,username,unique';
     $rules['password']       = 'required';
@@ -16,8 +14,6 @@ if ($_POST) {
 
     if ($validation->validate($_POST, $rules)) {
         $user = array();
-        $user['firstname'] = $_POST['first-name'];
-        $user['lastname']  = $_POST['last-name'];
         $user['email']     = $_POST['email'];
         $user['username']  = $_POST['username'];
         $user['password']  = $_POST['password'];
