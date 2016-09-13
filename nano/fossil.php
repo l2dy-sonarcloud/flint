@@ -4,11 +4,24 @@ class Nano_Fossil
 {
     protected $path;
     protected $user;
+    protected $workdir;
 
     public function __construct($user)
     {
         $this->path = $_SERVER['DOCUMENT_ROOT'] . '/../repos/' . $user['username'] . '/';
         $this->user = $user;
+        $this->workdir = "/tmp/workdir-flint-" . bin2hex(openssl_random_pseudo_bytes(20));
+
+        mkdir($this->workdir);
+        putenv("HOME={$this->workdir}");
+        putenv("USER={$this->user['username']}");
+        putenv("GATEWAY_INTERFACE");
+    }
+
+    public function __destruct() {
+        putenv("HOME");
+        putenv("USER");
+        system("rm -rf '{$this->workdir}'");
     }
 
     public function newRepo($repo, $password = null, $private = 0, $projectCode = null)
@@ -22,9 +35,6 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            putenv('HOME=/tmp');
-            putenv("USER={$this->user['username']}");
-            putenv("GATEWAY_INTERFACE");
             exec("/usr/local/bin/fossil new -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
 
             if ($return !== 0) {
@@ -99,9 +109,6 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            putenv('HOME=/tmp');
-            putenv("USER={$this->user['username']}");
-            putenv("GATEWAY_INTERFACE");
             exec("timeout 3600 /usr/local/bin/fossil clone -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg($url) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output,
                  $return);
 
@@ -168,10 +175,6 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            putenv('HOME=/tmp');
-            putenv("USER={$this->user['username']}");
-            putenv("GATEWAY_INTERFACE");
-
             if (!@move_uploaded_file($file['tmp_name'], "{$this->path}{$repo}.fossil")) {
                 return false;
             }
@@ -254,9 +257,6 @@ class Nano_Fossil
         }
 
         if (file_exists("{$this->path}{$repo}.fossil")) {
-            putenv('HOME=/tmp');
-            putenv("USER={$this->user['username']}");
-            putenv("GATEWAY_INTERFACE");
             if ($url == '') {
                 exec("timeout 3600 /usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
