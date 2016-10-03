@@ -26,7 +26,9 @@ class Nano_Fossil
             $fossil = "timeout {$timeout} {$fossil}";
         }
 
-        $cmd = "HOME={$this->workdir} USER={$this->user['username']} {$fossil}";
+        $username = escapeshellarg($this->user['username']);
+
+        $cmd = "HOME={$this->workdir} USER={$username} {$fossil}";
 
         if ($cgi) {
             $cmd = "GATEWAY_INTERFACE=1 {$cmd}";
