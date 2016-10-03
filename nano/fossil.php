@@ -13,15 +13,28 @@ class Nano_Fossil
         $this->workdir = "/tmp/workdir-flint-" . bin2hex(openssl_random_pseudo_bytes(20));
 
         mkdir($this->workdir);
-        putenv("HOME={$this->workdir}");
-        putenv("USER={$this->user['username']}");
-        putenv("GATEWAY_INTERFACE");
     }
 
     public function __destruct() {
-        putenv("HOME");
-        putenv("USER");
         system("rm -rf '{$this->workdir}'");
+    }
+
+    private function getFossilCommand($timeout = 0, $cgi = false) {
+        $fossil = "/usr/local/bin/fossil";
+
+        if ($timeout) {
+            $fossil = "timeout {$timeout} {$fossil}";
+        }
+
+        $cmd = "HOME={$this->workdir} USER={$this->user['username']} {$fossil}";
+
+        if ($cgi) {
+            $cmd = "GATEWAY_INTERFACE=1 {$cmd}";
+        } else {
+            $cmd = "unset GATEWAY_INTERFACE; {$cmd}";
+        }
+
+        return $cmd;
     }
 
     public function newRepo($repo, $password = null, $private = 0, $projectCode = null)
@@ -35,7 +48,7 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            exec("/usr/local/bin/fossil new -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
+            exec($this->getFossilCommand() . " new -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
 
             if ($return !== 0) {
                 if (file_exists("{$this->path}{$repo}.fossil")) {
@@ -46,7 +59,7 @@ class Nano_Fossil
             }
 
             /* Install default configuration */
-            exec("/usr/local/bin/fossil configuration import -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " " . escapeshellarg($_SERVER['DOCUMENT_ROOT'] . "/../config/fossil-default.cnf"), $output, $return);
+            exec($this->getFossilCommand() . " configuration import -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " " . escapeshellarg($_SERVER['DOCUMENT_ROOT'] . "/../config/fossil-default.cnf"), $output, $return);
 
             $sql = "INSERT INTO repositories
                            (user_id, name, private, cloned, auto_update)
@@ -109,7 +122,7 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            exec("timeout 3600 /usr/local/bin/fossil clone -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg($url) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output,
+            exec($this->getFossilCommand(3600) . " clone -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg($url) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output,
                  $return);
 
             if ($return !== 0) {
@@ -179,7 +192,7 @@ class Nano_Fossil
                 return false;
             }
 
-            exec("/usr/local/bin/fossil config -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " export project /tmp/config",
+            exec($this->getFossilCommand() . " config -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " export project /tmp/config",
                  $output, $return);
 
             if (file_exists('/tmp/config')) {
@@ -194,11 +207,11 @@ class Nano_Fossil
                 return false;
             }
 
-            exec("/usr/local/bin/fossil user new " . escapeshellarg($this->user['username']) . " 'Flint User' {$password} -R " . escapeshellarg("{$this->path}{$repo}.fossil"),
+            exec($this->getFossilCommand() . " user new " . escapeshellarg($this->user['username']) . " 'Flint User' {$password} -R " . escapeshellarg("{$this->path}{$repo}.fossil"),
                 $output, $return);
 
             if ($return == 0) {
-                exec("/usr/local/bin/fossil user capabilities " . escapeshellarg($this->user['username']) . " s -R " . escapeshellarg("{$this->path}{$repo}.fossil"),
+                exec($this->getFossilCommand() . " user capabilities " . escapeshellarg($this->user['username']) . " s -R " . escapeshellarg("{$this->path}{$repo}.fossil"),
                     $output, $return);
 
                 if ($return !== 0) {
@@ -258,10 +271,10 @@ class Nano_Fossil
 
         if (file_exists("{$this->path}{$repo}.fossil")) {
             if ($url == '') {
-                exec("timeout 3600 /usr/local/bin/fossil pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                exec($this->getFossilCommand(3600) . " pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
             } else {
-                exec("timeout 3600 /usr/local/bin/fossil pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+                exec($this->getFossilCommand(3600) . " pull " . escapeshellarg($url) . " -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
             }
 
@@ -329,7 +342,7 @@ class Nano_Fossil
             $password           = array_pop($result);
             $return['clone-pw'] = $password['value'];
 
-            exec("/usr/local/bin/fossil test-obscure " . escapeshellarg($return['clone-pw']), $output, $returnCode);
+            exec($this->getFossilCommand() . " test-obscure " . escapeshellarg($return['clone-pw']), $output, $returnCode);
 
             if ($returnCode === 0) {
                 if (preg_match('/^UNOBSCURE: (.*) -> (.*)$/', $output[1], $matches)) {
