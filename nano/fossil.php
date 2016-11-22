@@ -272,6 +272,13 @@ class Nano_Fossil
         }
 
         if (file_exists("{$this->path}{$repo}.fossil")) {
+            # Ensure that no non-default SSH command can be used for a pull
+            exec("timeout 3600 /usr/local/bin/fossil unset ssh-command -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
+              $output, $return);
+            if ($return !== 0) {
+                return false;
+            }
+
             if ($url == '') {
                 exec($this->getFossilCommand(3600) . " pull -R " . escapeshellarg("{$this->path}{$repo}.fossil") . " 2>&1",
                   $output, $return);
