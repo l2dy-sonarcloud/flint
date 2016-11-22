@@ -34,6 +34,10 @@ class Nano_Db
     {
         $res = self::$_db->prepare($sql);
 
+	if ($res === false) {
+            error_log("Unable to prepare (for execution): {$sql}: " . implode(self::$_db->errorInfo()));
+	}
+
         if ($res->execute($bind)) {
             return true;
         }
@@ -44,6 +48,10 @@ class Nano_Db
     public static function query($sql, $bind = array())
     {
         $res = self::$_db->prepare($sql);
+
+	if ($res === false) {
+            error_log("Unable to prepare (for query): {$sql}: " . implode(self::$_db->errorInfo()));
+	}
 
         if ($res->execute($bind)) {
             if ($result = $res->fetchAll(PDO::FETCH_ASSOC)) {
