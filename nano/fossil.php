@@ -50,7 +50,7 @@ class Nano_Fossil
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            exec($this->getFossilCommand() . " new -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
+            exec($this->getFossilCommand() . " new --sha1 -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
 
             if ($return !== 0) {
                 if (file_exists("{$this->path}{$repo}.fossil")) {
