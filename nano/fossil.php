@@ -39,7 +39,7 @@ class Nano_Fossil
         return $cmd;
     }
 
-    public function newRepo($repo, $password = null, $private = 0, $projectCode = null)
+    public function newRepo($repo, $password = null, $private = 0, $projectCode = null, $sha3 = false)
     {
         if (!file_exists($this->path)) {
             mkdir($this->path);
@@ -49,8 +49,14 @@ class Nano_Fossil
             chmod("{$this->path}repository", 0555);
         }
 
+        if ($sha3 === true) {
+            $shaArg = ""
+        } else {
+            $shaArg = "--sha1"
+        }
+
         if (!file_exists("{$this->path}{$repo}.fossil")) {
-            exec($this->getFossilCommand() . " new --sha1 -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
+            exec($this->getFossilCommand() . " new " . $shaArg . " -A " . escapeshellarg($this->user['username']) . " " . escapeshellarg("{$this->path}{$repo}.fossil"), $output, $return);
 
             if ($return !== 0) {
                 if (file_exists("{$this->path}{$repo}.fossil")) {
