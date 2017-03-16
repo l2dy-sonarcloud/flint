@@ -50,9 +50,9 @@ class Nano_Fossil
         }
 
         if ($sha3 === true) {
-            $shaArg = ""
+            $shaArg = "";
         } else {
-            $shaArg = "--sha1"
+            $shaArg = "--sha1";
         }
 
         if (!file_exists("{$this->path}{$repo}.fossil")) {
