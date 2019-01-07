@@ -7,7 +7,7 @@ require "ini"
 ## UID offset when mapping Flint user IDs to OS user IDs
 UID_OFFSET = 1024 * 1024
 
-## 
+## Path to Flint root directory
 FLINT_ROOT = "/home/chiselapp/chisel"
 
 # Import the C functions for setuid/setgid
