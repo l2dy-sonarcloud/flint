@@ -1,0 +1,5 @@
+name: fossil-as-user
+version: 1
+dependencies:
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3

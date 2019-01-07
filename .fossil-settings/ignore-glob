@@ -1,0 +1,2 @@
+scripts/fossil-as-user/suid-fossil
+scripts/fossil-as-user/lib/*
