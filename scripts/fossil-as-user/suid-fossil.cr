@@ -73,6 +73,15 @@ end
 
 # Run Fossil, wrapped as a Flint UserName/UserID
 def suid_fossil(username : String, userid : Int32, fossil_args : Array, fossil_command = "fossil")
+	# Ensure that the user ID is sane
+	if userid < 0
+		raise "User ID out of bounds (too low)"
+	end
+
+	if userid > (UInt32.new(Int32::MAX) - UID_OFFSET - 1)
+		raise "User ID out of bounds (too high)"
+	end
+
 	# Compute OS UID from Flint User ID
 	uid = userid + UID_OFFSET
 
