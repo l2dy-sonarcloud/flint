@@ -1,0 +1,53 @@
+#! /usr/bin/env php
+<?php
+
+include(dirname(__FILE__) . '/../include.php');
+
+function get_user_id_from_username($username) {
+	$sql = "SELECT * FROM users WHERE username = :username";
+	$bind = array(
+		'username' => $username
+	);
+
+	if ($result = Nano_Db::query($sql, $bind)) {
+		foreach ($result as $user) {
+			return($user['id']);
+		}
+	}
+
+	return(null);
+}
+
+function get_user_id($path) {
+	/*
+	 * Pick out the username from something that has been
+	 * explicitly set
+	 */
+	$userid = getenv('FLINT_USERID');
+	if (isset($userid) && $userid) {
+		return($userid);
+	}
+
+	$username = getenv('FLINT_USERNAME');
+	if (isset($username) && $username) {
+		$userid = get_user_id_from_username($username);
+		if (isset($userid)) {
+			return($userid);
+		}
+	}
+
+	/*
+	 * Pick out the username from the path we are running
+	 */
+	/* XXX:TODO */
+
+	return(null);
+}
+
+
+$userid = get_user_id('');
+if (!isset($userid)) {
+	exit(1);
+}
+echo "{$x}\n";
+?>

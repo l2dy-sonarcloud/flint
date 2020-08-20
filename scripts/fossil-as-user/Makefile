@@ -1,29 +1,20 @@
-CRYSTAL_PATH := /opt/appfs/rkeene.org/crystal/platform/latest
-CRYSTAL      := $(CRYSTAL_PATH)/bin/crystal
-SHARDS       := $(CRYSTAL_PATH)/bin/shards
-DEBUG_OR_RELEASE := --debug
+all: suid-fossil secure-wrap
 
-all: suid-fossil
+filter.h: generate-seccomp-filter filter.seccomp Makefile
+	./generate-seccomp-filter filter.seccomp i386 "" x86_64 "" > filter.h.new
+	mv filter.h.new filter.h
 
-lib: shard.lock
-	rm -rf lib
-	$(SHARDS) install
-
-shard.lock: shard.yml
-
-suid-fossil: suid-fossil.cr lib
-	$(CRYSTAL) build $(DEBUG_OR_RELEASE) -o suid-fossil suid-fossil.cr
+secure-wrap: secure-wrap.c filter.h
+	gcc -o secure-wrap -W -Wall secure-wrap.c
+	sudo chown root:root secure-wrap
+	sudo chmod +s secure-wrap
 
 clean:
-	rm -f suid-fossil
+	rm -f filter.h secure-wrap
 
 distclean: clean
-	rm -rf lib
 
 mrproper: distclean
-	rm -f shard.lock
-	$(MAKE) lib
-	rm -rf lib
 
 .PHONY: all clean distclean
 .SUFFIXES:

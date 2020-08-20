@@ -1,2 +1,2 @@
-scripts/fossil-as-user/suid-fossil
-scripts/fossil-as-user/lib/*
+scripts/fossil-as-user/secure-wrap
+scripts/fossil-as-user/filter.h
