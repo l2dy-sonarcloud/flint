@@ -92,19 +92,6 @@ class Nano_Router
                         }
                     }
                 }
-
-                if (!isset($ssl)) {
-                    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-                        header('Location: http://' . $_SERVER['SERVER_NAME'] . '/' . $uri);
-                        die();
-                    }
-                }
-            }
-            else {
-                if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
-                    header('Location: http://' . $_SERVER['SERVER_NAME'] . '/' . $uri);
-                    die();
-                }
             }
 
             Nano_Variable::set('controller', $load);
