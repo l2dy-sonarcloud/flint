@@ -36,6 +36,7 @@ class Nano_Db
 
 	if ($res === false) {
             error_log("Unable to prepare (for execution): {$sql}: " . implode(self::$_db->errorInfo()));
+            return false;
 	}
 
         if ($res->execute($bind)) {
@@ -51,6 +52,7 @@ class Nano_Db
 
 	if ($res === false) {
             error_log("Unable to prepare (for query): {$sql}: " . implode(self::$_db->errorInfo()));
+            return false;
 	}
 
         if ($res->execute($bind)) {
