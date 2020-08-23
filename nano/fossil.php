@@ -17,11 +17,11 @@ class Nano_Fossil
         $this->absolute_path = $this->absolute_path_root . 'data/';
         $this->user = $user;
 
-	$fossil_config_file = dirname(__FILE__) . '/../config/fossil.cnf';
-	$fossil_config = array();
-	if (file_exists($fossil_config_file)) {
-	        $fossil_config = parse_ini_file($fossil_config_file);
-	}
+        $fossil_config_file = dirname(__FILE__) . '/../config/fossil.cnf';
+        $fossil_config = array();
+        if (file_exists($fossil_config_file)) {
+                $fossil_config = parse_ini_file($fossil_config_file);
+        }
         if (isset($fossil_config['use_suid']) && $fossil_config['use_suid'] === '1') {
             $this->use_suid = true;
         } else {
@@ -537,6 +537,31 @@ class Nano_Fossil
 
         unlink("{$this->absolute_path_root}repository");
         rmdir("{$this->absolute_path_root}");
+
+        return true;
+    }
+
+    public function rebuildAllRepos() {
+        if (!file_exists("{$this->absolute_path}")) {
+            return false;
+        }
+
+        $sql = "SELECT name FROM repositories WHERE user_id = :id";
+        $bind = array('id' => $this->user['id']);
+        $result = Nano_Db::query($sql, $bind);
+        if ($result === false) {
+            return false;
+        }
+
+        foreach ($result as $repo_info) {
+            $repo = $repo_info['name'];
+            $repo_file = $this->repository_file($repo);
+            $this->fossil($repo, array('rebuild', $repo_file, '--quiet', '--wal'), $output, $return, 7200);
+            if ($return !== 0) {
+                $outputstr = join("\n", $output);
+                error_log("Failed while rebuilding {$repo_file}: {$outputstr}");
+            }
+        }
 
         return true;
     }
