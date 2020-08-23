@@ -3,7 +3,12 @@
 <? endif ?>
 
 <? if (isset($this->pull)): ?>
-<p class="success"><?= $this->pull ?> was successfully updated.</p>
+<? if ($this->pull['success']) { ?>
+<p class="success"><?= $this->pull['name'] ?> was successfully updated.</p>
+<? } else { ?>
+<p class="failure"><?= $this->pull['name'] ?> failed to be updated.</p>
+Output: <pre><?= $this->pull['output'] ?></pre>
+<? } ?>
 <? endif ?>
 
 <h3>Public Repositories</h3>

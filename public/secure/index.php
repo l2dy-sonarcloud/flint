@@ -35,7 +35,7 @@ if (isset($_SESSION['pull'])) {
 }
 
 if (isset($_SESSION['update'])) {
-    $view->pull = $_SESSION['update'];
+    $view->pull = array('name' => $_SESSION['update'], 'success' => true);
     unset($_SESSION['update']);
 }
 

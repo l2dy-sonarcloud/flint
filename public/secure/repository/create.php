@@ -16,8 +16,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'new' && $_POST) {
 
         if (isset($_POST['repository-password']) && !empty($_POST['repository-password'])) {
             $password = $_POST['repository-password'];
-        }
-        else {
+        } else {
             $password = null;
         }
 
@@ -31,18 +30,17 @@ if (isset($_GET['type']) && $_GET['type'] == 'new' && $_POST) {
 
         $sha3 = isset($_POST['sha3']);
 
-        if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private, $projectCode, $sha3)) {
+        if ($result = $fossil->newRepo($_POST['repository-name'], $password, $private, $projectCode, $sha3, $errorMessage)) {
             $view->user     = $user;
             $view->name     = $_POST['repository-name'];
             $view->private  = $private;
             $view->password = $result;
             $view->success  = true;
-        }
-        else {
+        } else {
             $view->error = true;
+            $view->errorMessage = $errorMessage;
         }
-    }
-    else {
+    } else {
         Nano_Variable::set('validationErrors', $validation->errors());
     }
 }
@@ -69,7 +67,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'clone' && $_POST) {
         $update  = isset($_POST['auto-update']) ? '1' : '0';
 
         if ($result = $fossil->cloneRepo($_POST['repository-name'], $password, $_POST['clone-url'],
-                                         $private, $update)) {
+                                         $private, $update, $errorMessage)) {
             $view->user     = $user;
             $view->name     = $_POST['repository-name'];
             $view->private  = $private;
@@ -79,6 +77,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'clone' && $_POST) {
         }
         else {
             $view->error = true;
+            $view->errorMessage = $errorMessage;
         }
     }
     else {
@@ -103,7 +102,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'upload' && $_POST) {
 
             $private = isset($_POST['private']) ? '1' : '0';
 
-            if ($fossil->uploadRepo($_POST['repository-name'], $_POST['repository-password'], $private, $_FILES['upload'])) {
+            if ($fossil->uploadRepo($_POST['repository-name'], $_POST['repository-password'], $private, $_FILES['upload'], $errorMessage)) {
                 $view->user     = $user;
                 $view->name     = $_POST['repository-name'];
                 $view->private  = $private;
@@ -112,6 +111,7 @@ if (isset($_GET['type']) && $_GET['type'] == 'upload' && $_POST) {
             }
             else {
                 $view->error = true;
+                $view->errorMessage = $errorMessage;
             }
         }
     }
