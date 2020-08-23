@@ -1,9 +1,18 @@
 <?php
 
-$repositories = glob('../repos/*/*.fossil');
+include('include.php');
 
-foreach ($repositories as $repository) {
-    echo $repository . "\n";
-    system("fossil rebuild -R {$repository}");
-    echo "\n";
+$sql = "SELECT * FROM users"; 
+if ($result = Nano_Db::query($sql)) {
+	foreach ($result as $user) {
+		$username = $user['username'];
+		echo "Processing User: {$username}\n";
+		$fossil = new Nano_Fossil($user);
+		$result = $fossil->rebuildAllRepos();
+		if (!$result) {
+			echo "Failed!\n";
+		}
+	}
 }
+
+?>

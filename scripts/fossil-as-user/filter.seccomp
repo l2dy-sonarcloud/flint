@@ -1,0 +1,119 @@
+i386 {
+	return kill
+}
+
+x86_64 {
+	if {$nr eq "socket"} {
+		if {$args(0) ni {PF_LOCAL PF_INET PF_INET6}} {
+			return errno EINVAL
+		}
+	}
+
+	if {$nr in "setpgid"} {
+		if {$args(0) == $args(1)} {
+			return allow
+		} else {
+			return errno EACCES
+		}
+	}
+
+	if {$nr == "kill"} {
+		if {$args(1) == 0} {
+			return allow
+		}
+	}
+
+	if {$nr in {
+	    bind
+	    socket
+	    setsockopt
+	    connect
+	    select
+	    poll
+	    sendto
+	    recvfrom
+	    readv
+	    writev
+	    madvise
+	    tgkill
+	    futex
+	    access
+	    arch_prctl
+	    brk
+	    chdir
+	    fchdir
+	    close
+	    execve
+	    exit_group
+	    fstat
+	    getrlimit
+	    getuid
+	    ioctl
+	    lseek
+	    mmap
+	    mprotect
+	    munmap
+	    open
+	    fcntl
+	    read
+	    pread64
+	    pwrite64
+	    getdents
+	    readlink
+	    rt_sigaction
+	    set_tid_address
+	    uname
+	    write
+	    pipe
+	    nanosleep
+	    getcwd
+	    clone
+	    fork
+	    vfork
+	    stat
+	    lstat
+	    statfs
+	    rename
+	    mkdir
+	    getpid
+	    wait4
+	    exit
+	    mkdirat
+	    mknodat
+	    fchownat
+	    futimesat
+	    newfstatat
+	    unlinkat
+	    unlink
+	    renameat
+	    linkat
+	    symlinkat
+	    readlinkat
+	    fchmodat
+	    faccessat
+	    set_robust_list
+	    rt_sigprocmask
+	    restart_syscall
+	    openat
+	    getgid
+	    geteuid
+	    getegid
+	    getppid
+	    getpgrp
+	    dup
+	    dup2
+	    dup3
+	    rt_sigreturn
+	    prlimit64
+	    setrlimit
+	    getrusage
+	    fsync
+	    ftruncate
+	    gettid
+	    setsid
+	}} {
+		return allow
+	}
+
+	return errno ENOSYS
+}

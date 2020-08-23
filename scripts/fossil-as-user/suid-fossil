@@ -1,0 +1,300 @@
+#! /usr/bin/php
+<?php
+
+include(dirname(__FILE__) . '/../include.php');
+
+function get_user_id_from_username($username) {
+	$sql = "SELECT * FROM users WHERE username = :username";
+	$bind = array(
+		'username' => $username
+	);
+
+	if ($result = Nano_Db::query($sql, $bind)) {
+		foreach ($result as $user) {
+			return($user['id']);
+		}
+	}
+
+	return(null);
+}
+
+function get_user_name($userid) {
+	$username = getenv('FLINT_USERNAME');
+	if (isset($username) && $username) {
+		return $username;
+	}
+
+	$sql = "SELECT * FROM users WHERE id = :id";
+	$bind = array(
+		'id' => $userid
+	);
+
+	if ($result = Nano_Db::query($sql, $bind)) {
+		foreach ($result as $user) {
+			return($user['username']);
+		}
+	}
+
+	return(null);
+}
+
+function get_user_id($argv) {
+	/*
+	 * Pick out the username from something that has been
+	 * explicitly set
+	 */
+	$userid = getenv('FLINT_USERID');
+	if (isset($userid) && $userid) {
+		return($userid);
+	}
+
+	$username = getenv('FLINT_USERNAME');
+	if (isset($username) && $username) {
+		$userid = get_user_id_from_username($username);
+		if (isset($userid)) {
+			return($userid);
+		}
+	}
+
+	/*
+	 * Pick out the username from the path we are running
+	 */
+	if ($argv[1] === 'repository') {
+		$username = end(preg_split("/\//", getcwd()));
+
+		$userid = get_user_id_from_username($username);
+		if (isset($userid)) {
+			return($userid);
+		}
+	}
+
+	return(null);
+}
+
+function mkdir_p($dir) {
+	if (file_exists($dir)) {
+		return;
+	}
+
+	mkdir($dir, 0755, TRUE);
+
+	return;
+}
+
+function unlink_f($file) {
+	if (!file_exists($file)) {
+		return;
+	}
+
+	unlink($file);
+}
+
+function log_message($message) {
+error_log($message);
+	$fd = fopen("/var/tmp/flint-suid-fossil.log", "a+");
+	fwrite($fd, $message . "\n");
+	fclose($fd);
+}
+
+function exec_log($command) {
+	log_message("Running: {$command}");
+	return(exec($command));
+}
+
+$fossil_config = array();
+$fossil_config_file = dirname(__FILE__) . '/../../config/fossil.cnf';
+if (file_exists($fossil_config_file)) {
+	$fossil_config = parse_ini_file($fossil_config_file);
+}
+
+if (isset($fossil_config['use_suid']) && $fossil_config['use_suid'] === '1') {
+	$use_suid = true;
+} else {
+	$use_suid = false;
+}
+
+if (isset($fossil_config['binary'])) {
+	$fossil_binary_real = $fossil_config['binary'];
+} else {
+	$fossil_binary_real = '/usr/local/bin/fossil';
+}
+
+if (isset($fossil_config['root_link_prefix'])) {
+	$root_link_prefix = $fossil_config['root_link_prefix'];
+} else {
+	$root_link_prefix = '';
+}
+
+$userid = get_user_id($argv);
+
+if (isset($userid)) {
+	$username = get_user_name($userid);
+
+	$user_directory = dirname(__FILE__) . "/../../repos/{$username}";
+	$repo_directory = $user_directory . "/data";
+
+	$work_dir = '/root';
+	$home_dir = $work_dir . '/home';
+
+	$work_dir_outside = $user_directory . $work_dir;
+	$home_dir_outside = $user_directory . $home_dir;
+
+	$fossil_binary = $work_dir . '/bin/' . basename($fossil_binary_real);
+	$fossil_binary_outside = $user_directory . $fossil_binary;
+	$fossil_binary_symlink = dirname($fossil_binary_outside) . "/fossil";
+
+	$real_user_id = (1024 * 1024) + $userid;
+	$current_user_id = posix_getuid();
+}
+
+if ($use_suid) {
+	if (!isset($userid)) {
+		exit(1);
+	}
+
+	/*
+	 * If the binary has not been setup, take this as a cue that the project
+	 * directory needs to be setup.
+	 */
+	$upgrade_required = false;
+	if (!file_exists($fossil_binary_outside)) {
+		$upgrade_required = true;
+	}
+
+	if (!file_exists($fossil_binary_symlink)) {
+		$upgrade_required = true;
+	}
+		
+	if ($upgrade_required) {
+		log_message("Upgrading {$user_directory} to {$fossil_binary_real}");
+
+		mkdir_p(dirname($fossil_binary_outside));
+		mkdir_p($home_dir_outside);
+
+		$fossil_binary_resolved = realpath($fossil_binary_real);
+		if (!$fossil_binary_resolved) {
+			exit(1);
+		}
+
+		/*
+		 * Create the Fossil named either after the tail of its
+		 * external name or the version number if the name
+		 * is just "fossil" (since we will symlink it into place)
+		 */
+		if (basename($fossil_binary_outside) === 'fossil') {
+			$fossil_version = `$fossil_binary_resolved version | sed 's@^.* version @@;s@ .*$@@'`;
+			$fossil_binary_outside = $fossil_binary_outside . '-' . $fossil_version;
+		}
+
+		unlink_f($fossil_binary_outside);
+		link($fossil_binary_resolved, $fossil_binary_outside);
+
+		unlink_f($fossil_binary_symlink);
+		symlink(basename($fossil_binary_outside), $fossil_binary_symlink);
+
+		/*
+		 * Setup a usable environment
+		 */
+		mkdir_p($user_directory);
+		mkdir_p($user_directory . '/etc');
+
+		/**
+		 ** User/Group Lookup
+		 **/
+		$fd = fopen($user_directory . '/etc/passwd', 'w');
+		fwrite($fd, "{$username}:x:{$real_user_id}:{$real_user_id}::{$home_dir}:{$work_dir}/bin/sh\n");
+		fclose($fd);
+
+		$fd = fopen($user_directory . '/etc/group', 'w');
+		fwrite($fd, "{$username}:x:{$real_user_id}:\n");
+		fclose($fd);
+
+		/**
+		 ** DNS
+		 **/
+		unlink_f($user_directory . '/etc/resolv.conf');
+		link('/etc/resolv.conf', $user_directory . '/etc/resolv.conf');
+
+		/**
+		 ** SSL
+		 **/
+		mkdir_p($user_directory . '/etc/ssl/certs');
+		system('rm -f ' . escapeshellarg($user_directory . '/etc/ssl/certs/') . '*');
+		system('cp -L /etc/ssl/certs/????????.? ' . escapeshellarg($user_directory . '/etc/ssl/certs/'));
+
+		/**
+		 ** Temporary storage
+		 **/
+		mkdir_p($user_directory . '/tmp');
+		chmod($user_directory . '/tmp', 01777);
+
+		/**
+		 ** Device nodes
+		 **/
+		mkdir_p($user_directory . '/dev');
+		system("cp -l {$root_link_prefix}/dev/null {$root_link_prefix}/dev/urandom {$root_link_prefix}/dev/random {$root_link_prefix}/dev/zero " . escapeshellarg($root_link_prefix . '/' . $user_directory . '/dev'));
+
+		/*
+		 * Ensure that the directory has the appropriate permissions
+		 */
+		mkdir_p($repo_directory);
+
+		putenv("PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
+
+		exec_log('setfacl -RP -m u:' . $real_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl   -m d:u:' . $real_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -m m::rwx  -m u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl   -m d:m::rwx -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -m   u:' . $real_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -m d:u:' . $real_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -m   u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+	}
+
+	$command = escapeshellarg(dirname(__FILE__) . "/secure-wrap") . " " . escapeshellarg($userid) . " " . escapeshellarg($user_directory) . " " . escapeshellarg($fossil_binary);
+
+	putenv("USER={$username}");
+	putenv("HOME={$home_dir}");
+} else {
+	$downgrade_required = false;
+	if (isset($fossil_binary_outside) && file_exists($fossil_binary_outside)) {
+		$downgrade_required = true;
+	}
+	if (isset($fossil_binary_symlink) && file_exists($fossil_binary_symlink)) {
+		$downgrade_required = true;
+	}
+	if ($downgrade_required) {
+		log_message("Downgrading {$user_directory} from {$fossil_binary_real}");
+
+		unlink_f($fossil_binary_outside);
+		unlink_f($fossil_binary_symlink);
+
+		putenv("PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
+
+		exec_log('setfacl -RP -x   u:' . $real_user_id . ' ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -x d:u:' . $real_user_id . ' ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -m   m::rwx   -m u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -m d:m::rwx -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -x   u:' . $real_user_id . ' ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -RP -x d:u:' . $real_user_id . ' ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -RP -m   u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+		exec_log('setfacl -RP -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
+	}
+
+	$command = escapeshellarg($fossil_binary_real);
+}
+
+foreach (array_slice($argv, 1) as $arg) {
+	$command = $command . " " . escapeshellarg($arg);
+}
+$command = trim($command);
+
+if (getenv("SERVER_PORT") === '443') {
+	putenv("HTTPS=on");
+}
+
+log_message("Running: >> {$command}");
+passthru($command, $rc);
+exit($rc);
+
+?>
