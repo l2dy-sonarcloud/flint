@@ -4,7 +4,7 @@ i386 {
 
 x86_64 {
 	if {$nr eq "socket"} {
-		if {$args(0) != PF_LOCAL} {
+		if {$args(0) ni {PF_LOCAL PF_INET PF_INET6}} {
 			return errno EINVAL
 		}
 	}
@@ -17,9 +17,21 @@ x86_64 {
 		}
 	}
 
+	if {$nr == "kill"} {
+		if {$args(1) == 0} {
+			return allow
+		}
+	}
+
 	if {$nr in {
+	    bind
+	    socket
+	    setsockopt
 	    connect
 	    select
+	    poll
+	    sendto
+	    recvfrom
 	    readv
 	    writev
 	    madvise
@@ -44,6 +56,8 @@ x86_64 {
 	    open
 	    fcntl
 	    read
+	    pread64
+	    pwrite64
 	    getdents
 	    readlink
 	    rt_sigaction
@@ -70,6 +84,7 @@ x86_64 {
 	    futimesat
 	    newfstatat
 	    unlinkat
+	    unlink
 	    renameat
 	    linkat
 	    symlinkat
@@ -89,6 +104,13 @@ x86_64 {
 	    dup2
 	    dup3
 	    rt_sigreturn
+	    prlimit64
+	    setrlimit
+	    getrusage
+	    fsync
+	    ftruncate
+	    gettid
+	    setsid
 	}} {
 		return allow
 	}

@@ -3,6 +3,8 @@
  * and sets resource limits, before dropping privileges
  */
 
+#define _XOPEN_SOURCE 1
+
 #include <linux/seccomp.h>
 #include <linux/filter.h>
 #include <sys/resource.h>
@@ -19,6 +21,8 @@
 #include <limits.h>
 #include <errno.h>
 #include <stdio.h>
+
+extern char **environ;
 
 #define SECURE_WRAP_MAX_ID 5242880LU
 #define SECURE_WRAP_BASE_ID (1024LU * 1024LU)
@@ -44,19 +48,10 @@ int enable_seccomp(void) {
 
 int main(int argc, char **argv) {
 	const char *directory, *program;
-	char *program_environment[6];
-	char *secure_home, *secure_user;
 	char *id_string;
 	unsigned long id;
 	struct rlimit limit;
 	unsigned int tmp_fd;
-
-	program_environment[0] = "HOME=/";
-	program_environment[1] = "TMPDIR=/tmp";
-	program_environment[2] = "PATH=/bin";
-	program_environment[3] = "TZ=UTC";
-	program_environment[4] = NULL;
-	program_environment[5] = NULL;
 
 	if (argc < 4) {
 		fprintf(stderr, "usage: secure-wrap <id> <directory> <program> [<args>...]\n");
@@ -120,20 +115,19 @@ int main(int argc, char **argv) {
 	check(setrlimit(RLIMIT_LOCKS, &limit));
 	check(setrlimit(RLIMIT_MEMLOCK, &limit));
 	check(setrlimit(RLIMIT_MSGQUEUE, &limit));
-	check(setrlimit(RLIMIT_FSIZE, &limit));
 
 	/**
 	 ** Allow a reasonable number of file descriptors
 	 **/
-	limit.rlim_cur = 16;
-	limit.rlim_max = 16;
+	limit.rlim_cur = 32;
+	limit.rlim_max = 32;
 	check(setrlimit(RLIMIT_NOFILE, &limit));
 
 	/**
 	 ** Allow a reasonable number of processes
 	 **/
-	limit.rlim_cur = 5;
-	limit.rlim_max = 5;
+	limit.rlim_cur = 10;
+	limit.rlim_max = 10;
 	check(setrlimit(RLIMIT_NPROC, &limit));
 
 	/**
@@ -168,41 +162,9 @@ int main(int argc, char **argv) {
 	check(enable_seccomp());
 
 	/*
-	 * Allow a user-specified HOME directory to be set
-	 */
-	secure_home = getenv("SECURE_WRAP_HOME");
-	if (secure_home) {
-		secure_home = strdup(secure_home - 5);
-
-		if (secure_home) {
-			program_environment[0] = secure_home;
-
-			if (memcmp(program_environment[0], "HOME=", 5) != 0) {
-				return(5);
-			}
-		}
-	}
-
-	/*
-	 * Allow a user-specified USER variable to be set
-	 */
-	secure_user = getenv("SECURE_WRAP_USER");
-	if (secure_user) {
-		secure_user = strdup(secure_user - 5);
-
-		if (secure_user) {
-			program_environment[4] = secure_user;
-
-			if (memcmp(program_environment[4], "USER=", 5) != 0) {
-				return(6);
-			}
-		}
-	}
-
-	/*
 	 * Execute program
 	 */
-	check(execve(program, argv, program_environment));
+	check(execve(program, argv, environ));
 
 	/*
 	 * Failed to execute program
