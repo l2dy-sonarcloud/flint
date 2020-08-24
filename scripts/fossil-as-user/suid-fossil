@@ -90,9 +90,14 @@ function unlink_f($file) {
 }
 
 function log_message($message) {
-error_log($message);
-	$fd = fopen("/var/tmp/flint-suid-fossil.log", "a+");
-	fwrite($fd, $message . "\n");
+	global $username;
+
+	if (!isset($username)) {
+		$username = "<unknown>";
+	}
+
+	$fd = fopen("/var/tmp/flint-suid-fossil-" . posix_getuid() . ".log", "a+");
+	fwrite($fd, time() . "/{$username}: " . $message . "\n");
 	fclose($fd);
 }
 
@@ -241,10 +246,10 @@ if ($use_suid) {
 
 		putenv("PATH=/bin:/usr/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/sbin");
 
-		exec_log('setfacl -RP -m u:' . $real_user_id . ':rwx ' . escapeshellarg($repo_directory));
-		exec_log('setfacl   -m d:u:' . $real_user_id . ':rwx ' . escapeshellarg($repo_directory));
-		exec_log('setfacl -RP -m m::rwx  -m u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
-		exec_log('setfacl   -m d:m::rwx -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -m u:' . $real_user_id . ':rwX ' . escapeshellarg($repo_directory));
+		exec_log('setfacl   -m d:u:' . $real_user_id . ':rwX ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -m m::rwX   -m u:' . $current_user_id . ':rwX ' . escapeshellarg($repo_directory));
+		exec_log('setfacl   -m d:m::rwX -m d:u:' . $current_user_id . ':rwX ' . escapeshellarg($repo_directory));
 		exec_log('setfacl -m   u:' . $real_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
 		exec_log('setfacl -m d:u:' . $real_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
 		exec_log('setfacl -m   u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
@@ -275,6 +280,7 @@ if ($use_suid) {
 		exec_log('setfacl -RP -x d:u:' . $real_user_id . ' ' . escapeshellarg($repo_directory));
 		exec_log('setfacl -RP -m   m::rwx   -m u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
 		exec_log('setfacl -RP -m d:m::rwx -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($repo_directory));
+		exec_log('setfacl -RP -b ' . escapeshellarg($repo_directory));
 		exec_log('setfacl -RP -x   u:' . $real_user_id . ' ' . escapeshellarg($home_dir_outside));
 		exec_log('setfacl -RP -x d:u:' . $real_user_id . ' ' . escapeshellarg($home_dir_outside));
 		exec_log('setfacl -RP -m   u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
