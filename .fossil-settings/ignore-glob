@@ -2,3 +2,4 @@ scripts/fossil-as-user/secure-wrap
 scripts/fossil-as-user/filter.h
 repos/*
 db/*.db
+scripts/fossil/fossil-*
