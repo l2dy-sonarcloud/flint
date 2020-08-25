@@ -236,7 +236,7 @@ echo -n 'Building LibreSSL...'
 	CFLAGS=' -g -O0 '
 	export CFLAGS
 
-	./configure --with-pic --disable-shared --enable-static  --host="${target}" "${libressl_configure_options[@]}" --prefix="$(pwd)/INST" || exit 1
+	./configure --with-pic --disable-shared --enable-static  --host="${target}" "${libressl_configure_options[@]}" --prefix="$(pwd)/INST" --with-openssldir=/etc/ssl || exit 1
 
 	# Disable building the apps -- they do not get used
 	rm -rf apps
