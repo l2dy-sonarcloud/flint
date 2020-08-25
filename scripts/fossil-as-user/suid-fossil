@@ -145,6 +145,7 @@ if (isset($userid)) {
 	$home_dir_outside = $user_directory . $home_dir;
 
 	$fossil_binary = $work_dir . '/bin/' . basename($fossil_binary_real);
+	$fossil_binary_run = $work_dir . '/bin/fossil';
 	$fossil_binary_outside = $user_directory . $fossil_binary;
 	$fossil_binary_symlink = dirname($fossil_binary_outside) . "/fossil";
 
@@ -256,7 +257,7 @@ if ($use_suid) {
 		exec_log('setfacl -m d:u:' . $current_user_id . ':rwx ' . escapeshellarg($home_dir_outside));
 	}
 
-	$command = escapeshellarg(dirname(__FILE__) . "/secure-wrap") . " " . escapeshellarg($userid) . " " . escapeshellarg($user_directory) . " " . escapeshellarg($fossil_binary);
+	$command = escapeshellarg(dirname(__FILE__) . "/secure-wrap") . " " . escapeshellarg($userid) . " " . escapeshellarg($user_directory) . " " . escapeshellarg($fossil_binary_run);
 
 	putenv("USER={$username}");
 	putenv("HOME={$home_dir}");
