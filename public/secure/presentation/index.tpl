@@ -5,9 +5,10 @@
 <? if (isset($this->pull)): ?>
 <? if ($this->pull['success']) { ?>
 <p class="success"><?= $this->pull['name'] ?> was successfully updated.</p>
+<pre><?= htmlspecialchars($this->pull['output']) ?></pre>
 <? } else { ?>
 <p class="failure"><?= $this->pull['name'] ?> failed to be updated.</p>
-Output: <pre><?= $this->pull['output'] ?></pre>
+<pre><?= htmlspecialchars($this->pull['output']) ?></pre>
 <? } ?>
 <? endif ?>
 
