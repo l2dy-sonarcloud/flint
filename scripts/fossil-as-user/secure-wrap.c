@@ -133,15 +133,15 @@ int main(int argc, char **argv) {
 	/**
 	 ** Allow a reasonable amount of CPU time
 	 **/
-	limit.rlim_cur = 90;
-	limit.rlim_max = 90;
+	limit.rlim_cur = 300;
+	limit.rlim_max = 300;
 	check(setrlimit(RLIMIT_CPU, &limit));
 
 	/**
 	 ** Allow a reasonable amount of RAM
 	 **/
-	limit.rlim_cur = 1024 * 1024 * 512LU;
-	limit.rlim_max = 1024 * 1024 * 512LU;
+	limit.rlim_cur = 1024 * 1024 * 1024LU;
+	limit.rlim_max = 1024 * 1024 * 1024LU;
 	check(setrlimit(RLIMIT_DATA, &limit));
 	check(setrlimit(RLIMIT_RSS, &limit));
 
@@ -149,8 +149,8 @@ int main(int argc, char **argv) {
 	limit.rlim_max = 1024 * 1024 * 16LU;
 	check(setrlimit(RLIMIT_STACK, &limit));
 
-	limit.rlim_cur = 1024 * 1024 * 1024LU;
-	limit.rlim_max = 1024 * 1024 * 1024LU;
+	limit.rlim_cur = 1024 * 1024 * 8192LU;
+	limit.rlim_max = 1024 * 1024 * 8192LU;
 	check(setrlimit(RLIMIT_AS, &limit));
 
 	/*
