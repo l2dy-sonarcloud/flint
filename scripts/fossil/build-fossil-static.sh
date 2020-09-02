@@ -212,7 +212,7 @@ trap cleanup EXIT
 
 function cleanup() {
 	if [ -n "${workdir}" ]; then
-echo		rm -rf "${workdir}"
+		rm -rf "${workdir}"
 		workdir=''
 	fi
 }
