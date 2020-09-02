@@ -36,6 +36,9 @@ result="fossil-${fossil_version}-${target}"
 # Clean-up the result file before starting
 rm -f "${result}" "${result}.info" "${result}.log"
 
+# Start Directory
+start_dir="$(pwd)" || exit 1
+
 # Helper functions
 function random() {
 	openssl rand -base64 6 | tr '/+' 'ZZ'
@@ -314,6 +317,15 @@ echo -n 'Building Fossil...'
 	# Extract the archive
 	extract "${fossil_archive}" "${fossil_dir}" || exit 1
 	cd "${fossil_dir}" || exit 1
+
+	# Apply patches
+	for file in "${start_dir}/patches"/fossil-*.diff; do
+		if [ ! -e "${file}" ]; then
+			continue
+		fi
+
+		patch --no-backup-if-mismatch --force -p1 < "${file}" || exit 1
+	done
 
 	# Setup cross-compiler
 	## From Build-CC 0.9+

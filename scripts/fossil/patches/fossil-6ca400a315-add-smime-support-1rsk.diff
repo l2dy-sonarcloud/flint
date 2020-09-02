@@ -1,0 +1,185 @@
+Binary files fossil-1.32.orig/src/.manifest.c.swp and fossil-1.32-smime/src/.manifest.c.swp differ
+diff -uNr fossil-1.32.orig/src/manifest.c fossil-1.32-smime/src/manifest.c
+--- fossil-1.32.orig/src/manifest.c	2015-03-14 08:20:34.000000000 -0500
++++ fossil-1.32-smime/src/manifest.c	2015-03-27 00:32:19.288505002 -0500
+@@ -229,23 +229,163 @@
+ ** Remove the PGP signature from the artifact, if there is one.
+ */
+ static void remove_pgp_signature(char **pz, int *pn){
+-  char *z = *pz;
+-  int n = *pn;
+-  int i;
+-  if( strncmp(z, "-----BEGIN PGP SIGNED MESSAGE-----", 34)!=0 ) return;
+-  for(i=34; i<n && !after_blank_line(z+i); i++){}
+-  if( i>=n ) return;
+-  z += i;
+-  n -= i;
+-  *pz = z;
+-  for(i=n-1; i>=0; i--){
+-    if( z[i]=='\n' && strncmp(&z[i],"\n-----BEGIN PGP SIGNATURE-", 25)==0 ){
+-      n = i+1;
+-      break;
+-    }
+-  }
+-  *pn = n;
+-  return;
++	char *manifest, boundary[256];
++	int manifest_len;
++	int idx;
++	int line_start, line_end, boundary_start, boundary_end, boundary_len;
++	int manifestclear_start, manifestclear_end, manifestclear_len;
++	int allow_quote;
++
++	manifest = *pz;
++	manifest_len = *pn;
++
++	if (manifest_len >= 34 && memcmp(manifest, "-----BEGIN PGP SIGNED MESSAGE-----", 34) == 0) {
++		/* Process as a GPG clear-signed message */
++
++		for (idx = 34; idx < manifest_len && !after_blank_line(manifest + idx); idx++) {
++			/* Nothing to do here, we're just iterating over the contents */
++		}
++
++		if (idx >= manifest_len) {
++			return;
++		}
++
++		manifest += idx;
++		manifest_len -= idx;
++
++		if (manifest_len < 25) {
++			return;
++		}
++
++		for (idx = manifest_len - 25; idx >= 0; idx--) {
++			if (manifest[idx] != '\n') {
++				continue;
++			}
++
++			if (memcmp(&manifest[idx],"\n-----BEGIN PGP SIGNATURE-", 25) == 0) {
++				manifest_len = idx + 1;
++
++				break;
++			}
++		}
++
++		*pz = manifest;
++		*pn = manifest_len;
++	} else if (manifest_len >= 18 && memcmp(manifest, "MIME-Version: 1.0\n", 18) == 0) {
++		/* Proccess as a multipart MIME message */
++		if (manifest_len < 30) {
++			return;
++		}
++
++		line_start = -1;
++		for (idx = 18; idx < manifest_len - 30; idx++) {
++			if (memcmp(&manifest[idx], "Content-Type: multipart/signed", 30) != 0) {
++				continue;
++			}
++
++			line_start = idx;
++
++			break;
++		}
++
++		if (line_start == -1) {
++			return;
++		}
++
++		line_end = -1;
++		for (idx = line_start + 1; idx < manifest_len; idx++) {
++			if (manifest[idx] != '\n') {
++				continue;
++			}
++
++			line_end = idx - 1;
++
++			break;
++		}
++
++		if (line_end == -1) {
++			return;
++		}
++
++		boundary_start = -1;
++		allow_quote = 1;
++		for (idx = line_start; idx < line_end - 9; idx++) {
++			if (memcmp(&manifest[idx], "boundary=", 9) != 0) {
++				continue;
++			}
++
++			if (manifest[idx - 1] != ' ' && manifest[idx - 1] != ';') {
++				continue;
++			}
++
++			boundary_start = idx + 9;
++
++			if (manifest[idx + 9] == '"') {
++				allow_quote = 0;
++
++				boundary_start++;
++			}
++
++			break;
++		}
++		if (boundary_start == -1) {
++			return;
++		}
++
++		boundary_end = line_end;
++		for (idx = boundary_start; idx < line_end; idx++) {
++			if (manifest[idx] == '"' && allow_quote) {
++				continue;
++			}
++
++			if (manifest[idx] != ' ' && manifest[idx] != ';' && manifest[idx] != '"') {
++				continue;
++			}
++
++			boundary_end = idx;
++
++			break;
++		}
++
++		boundary_len = boundary_end - boundary_start;
++		boundary_len = snprintf(boundary, sizeof(boundary), "\n--%.*s\n", boundary_len, manifest + boundary_start);
++
++		manifestclear_start = -1;
++		for (idx = 0; idx < manifest_len - boundary_len; idx++) {
++			if (memcmp(&manifest[idx], boundary, boundary_len) != 0) {
++				continue;
++			}
++
++			manifestclear_start = idx + boundary_len;
++
++			break;
++		}
++
++		if (manifestclear_start == -1) {
++			return;
++		}
++
++		manifestclear_end = -1;
++		for (idx = manifestclear_start; idx < manifest_len - boundary_len; idx++) {
++			if (memcmp(&manifest[idx], boundary, boundary_len) != 0) {
++				continue;
++			}
++
++			manifestclear_end = idx;
++
++			break;
++		}
++
++		if (manifestclear_end == -1) {
++			return;
++		}
++
++		manifestclear_len = manifestclear_end - manifestclear_start;
++		*pz = &manifest[manifestclear_start];
++		*pn = manifestclear_len;
++	}
++
++	return;
+ }
+ 
+ /*
