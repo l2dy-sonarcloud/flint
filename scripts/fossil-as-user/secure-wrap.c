@@ -140,15 +140,25 @@ int main(int argc, char **argv) {
 	/**
 	 ** Allow a reasonable amount of RAM
 	 **/
-	limit.rlim_cur = 1024 * 1024 * 1024LU;
-	limit.rlim_max = 1024 * 1024 * 1024LU;
+
+	/***
+	 *** 512MiB of available memory
+	 ***/
+	limit.rlim_cur = 1024 * 1024 * 512LU;
+	limit.rlim_max = 1024 * 1024 * 512LU;
 	check(setrlimit(RLIMIT_DATA, &limit));
 	check(setrlimit(RLIMIT_RSS, &limit));
 
+	/***
+	 *** 16MiB of stack space
+	 ***/
 	limit.rlim_cur = 1024 * 1024 * 16LU;
 	limit.rlim_max = 1024 * 1024 * 16LU;
 	check(setrlimit(RLIMIT_STACK, &limit));
 
+	/***
+	 *** 8GiB of Address Space
+	 ***/
 	limit.rlim_cur = 1024 * 1024 * 8192LU;
 	limit.rlim_max = 1024 * 1024 * 8192LU;
 	check(setrlimit(RLIMIT_AS, &limit));

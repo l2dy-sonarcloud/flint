@@ -53,6 +53,7 @@ x86_64 {
 	    mmap
 	    mprotect
 	    munmap
+	    mremap
 	    open
 	    fcntl
 	    read
