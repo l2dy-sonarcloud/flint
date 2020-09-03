@@ -1,0 +1,48 @@
+diff -uNr fossil-2.12.1.orig/src/browse.c fossil-2.12.1-symbolic-to-concrete/src/browse.c
+--- fossil-2.12.1.orig/src/browse.c	2020-08-20 08:27:04.000000000 -0500
++++ fossil-2.12.1-symbolic-to-concrete/src/browse.c	2020-09-03 08:08:32.369787985 -0500
+@@ -175,7 +175,7 @@
+       zUuid = db_text(0, "SELECT uuid FROM blob WHERE rid=%d", rid);
+       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI))!=0);
+       isBranchCI = branch_includes_uuid(zCI, zUuid);
+-      Th_Store("current_checkin", zCI);
++      Th_Store("current_checkin", zUuid);
+     }else{
+       zCI = 0;
+     }
+@@ -226,7 +226,7 @@
+     }else {
+       @ of check-in %z(href("%R/info?name=%T",zCI))%h(zCI)</a></h2>
+     }
+-    zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zCI, zPrefix);
++    zSubdirLink = mprintf("%R/dir?ci=%T&name=%T", zUuid, zPrefix);
+     if( nD==0 ){
+       style_submenu_element("File Ages", "%R/fileage?name=%T", zCI);
+     }
+@@ -323,7 +323,7 @@
+     }else{
+       const char *zLink;
+       if( zCI ){
+-        zLink = href("%R/file?name=%T%T&ci=%T",zPrefix,zFN,zCI);
++        zLink = href("%R/file?name=%T%T&ci=%T",zPrefix,zFN,zUuid);
+       }else{
+         zLink = href("%R/finfo?name=%T%T",zPrefix,zFN);
+       }
+@@ -705,7 +705,7 @@
+                          " FROM event WHERE objid=%d", rid);
+       isSymbolicCI = (sqlite3_strnicmp(zUuid, zCI, strlen(zCI)) != 0);
+       isBranchCI = branch_includes_uuid(zCI, zUuid);
+-      Th_Store("current_checkin", zCI);
++      Th_Store("current_checkin", zUuid);
+     }else{
+       zCI = 0;
+     }
+@@ -892,7 +892,7 @@
+       const char *zFileClass = fileext_class(p->zName);
+       char *zLink;
+       if( zCI ){
+-        zLink = href("%R/file?name=%T&ci=%T",p->zFullName,zCI);
++        zLink = href("%R/file?name=%T&ci=%T",p->zFullName,zUuid);
+       }else{
+         zLink = href("%R/finfo?name=%T",p->zFullName);
+       }
