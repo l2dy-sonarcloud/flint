@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
 	unsigned long id;
 	struct rlimit limit;
 	unsigned int tmp_fd;
+	int unconstrained_user = 0;
 
 	if (argc < 4) {
 		fprintf(stderr, "usage: secure-wrap <id> <directory> <program> [<args>...]\n");
@@ -77,6 +78,13 @@ int main(int argc, char **argv) {
 	program = argv[1];
 	argc--;
 	argv++;
+
+	/*
+	 * Determine if the user should be constrained
+	 */
+	if (getenv("SUID_FOSSIL_UNCONSTRAINED") != NULL) {
+		unconstrained_user = 1;
+	}
 
 	/*
 	 * chroot
@@ -142,10 +150,15 @@ int main(int argc, char **argv) {
 	 **/
 
 	/***
-	 *** 512MiB of available memory
+	 *** 512MiB of available memory (unless unconstrained user)
 	 ***/
-	limit.rlim_cur = 1024 * 1024 * 512LU;
-	limit.rlim_max = 1024 * 1024 * 512LU;
+	if (unconstrained_user) {
+		limit.rlim_cur = 1024 * 1024 * 1024 * 4LU;
+		limit.rlim_max = 1024 * 1024 * 1024 * 4LU;
+	} else {
+		limit.rlim_cur = 1024 * 1024 * 512LU;
+		limit.rlim_max = 1024 * 1024 * 512LU;
+	}
 	check(setrlimit(RLIMIT_DATA, &limit));
 	check(setrlimit(RLIMIT_RSS, &limit));
 
